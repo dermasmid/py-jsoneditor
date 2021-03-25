@@ -1,0 +1,17 @@
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <link rel="shortcut icon" href="static/favicon.ico">
+    <link href="static/jsoneditor.min.css" rel="stylesheet" type="text/css">
+    <script src="static/jsoneditor.min.js"></script>
+</head>
+<body>
+    <div id="jsoneditor"></div>
+    <script>
+        const container = document.getElementById("jsoneditor");
+        const editor = new JSONEditor(container, {});
+        const initialJson = {{ data|tojson }};
+        editor.set(initialJson);
+    </script>
+</body>
+</html>
