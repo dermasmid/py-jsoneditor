@@ -21,7 +21,7 @@ def editjson(data: Union[dict, str]):
 
     app = Flask('jsoneditor')
     port = random.randint(1023, 65353)
-    
+
     @app.route('/')
     def jsoneditor():
         return render_template('index.html', data=data)
@@ -29,4 +29,3 @@ def editjson(data: Union[dict, str]):
     server = Process(target=app.run, args=('localhost', port))
     server.start()
     webbrowser.open(f'http://localhost:{port}/')
-    print(1)
