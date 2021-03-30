@@ -1207,6 +1207,10 @@ pre.jsoneditor-preview,
   border-bottom: 1px solid #3883fa;
 }
 
+.jsoneditor-menu .send-back-json {
+  background: url("checkmark.svg");
+}
+
 .jsoneditor-menu > button,
 .jsoneditor-menu > .jsoneditor-modes > button {
   width: 26px;

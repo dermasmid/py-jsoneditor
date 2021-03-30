@@ -1,5 +1,5 @@
 from typing import Union
-from flask import Flask
+from flask import Flask, request
 from flask import render_template
 import json
 from multiprocessing import Process
@@ -15,7 +15,7 @@ log.setLevel(logging.ERROR)
 os.environ['WERKZEUG_RUN_MAIN'] = 'true'
 
 
-def editjson(data: Union[dict, str]):
+def editjson(data: Union[dict, str], finnish_callback: callable = None):
     if type(data) is str:
         data = json.loads(data)
 
@@ -24,7 +24,14 @@ def editjson(data: Union[dict, str]):
 
     @app.route('/')
     def jsoneditor():
-        return render_template('index.html', data=data)
+        return render_template('index.html', data=data, send_back_json= bool(finnish_callback))
+
+    if finnish_callback:
+        @app.route('/post', methods=['POST'])
+        def foo():
+            data = request.json['data']
+            finnish_callback(data)
+            return json.dumps({'success':True}), 200, {'ContentType':'application/json'} 
     
     server = Process(target=app.run, args=('localhost', port))
     server.start()

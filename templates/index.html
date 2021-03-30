@@ -2,8 +2,8 @@
 <head>
     <meta charset="utf-8">
     <link rel="shortcut icon" href="static/favicon.ico">
-    <link href="static/jsoneditor.min.css" rel="stylesheet" type="text/css">
-    <script src="static/jsoneditor.min.js"></script>
+    <link href="static/jsoneditor.css" rel="stylesheet" type="text/css">
+    <script src="static/jsoneditor.js"></script>
 </head>
 <body>
     <div id="jsoneditor"></div>
@@ -12,6 +12,20 @@
         const editor = new JSONEditor(container, {});
         const initialJson = {{ data|tojson }};
         editor.set(initialJson);
+        if ({{ send_back_json|tojson }}) {
+            const jsoneditorMenu = document.getElementsByClassName('jsoneditor-menu')[0]
+            const button = document.createElement('button')
+            button.className = 'send-back-json'
+            jsoneditorMenu.append(button)
+            button.onclick = () => {
+                var xhr = new XMLHttpRequest();
+                xhr.open("POST", window.location.origin + '/post', true);
+                xhr.setRequestHeader('Content-Type', 'application/json');
+                xhr.send(JSON.stringify({
+                    data: editor.get()
+                }));
+            }
+        }
     </script>
 </body>
 </html>
