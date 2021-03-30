@@ -6,10 +6,13 @@ from multiprocessing import Process
 import time
 import webbrowser
 import random
+import os
+
+# get installation dir
+install_dir = os.path.dirname(os.path.realpath(__file__))
 
 # disable flask logs
 import logging
-import os
 log = logging.getLogger('werkzeug')
 log.setLevel(logging.ERROR)
 os.environ['WERKZEUG_RUN_MAIN'] = 'true'
@@ -19,7 +22,7 @@ def editjson(data: Union[dict, str], finnish_callback: callable = None):
     if type(data) is str:
         data = json.loads(data)
 
-    app = Flask('jsoneditor')
+    app = Flask('jsoneditor', template_folder= install_dir + '/templates')
     port = random.randint(1023, 65353)
 
     @app.route('/')
