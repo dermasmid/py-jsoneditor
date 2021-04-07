@@ -15,14 +15,14 @@ with open(HERE / 'requirements.txt', encoding='utf-8') as f:
 setup(
     name = 'jsoneditor',
     version = version,
-    packages=['jsoneditor'],
-    include_package_data=True,
+    packages = ['jsoneditor'],
+    include_package_data = True,
     url = 'https://github.com/dermasmid/py-jsoneditor',
     license = 'MIT',
     long_description = readme,
     long_description_content_type = 'text/markdown',
     author = 'Cheskel Twersky',
-    author_email= 'twerskycheskel@gmail.com',
+    author_email = 'twerskycheskel@gmail.com',
     description = 'Visualize and edit JSON',
     keywords = 'python3 JSON jsoneditor',
     classifiers = [
@@ -31,5 +31,8 @@ setup(
         "Operating System :: OS Independent",
     ],
     install_requires = requirements,
-    python_requires='>=3.6'
+    python_requires = '>=3.6',
+    entry_points = {
+        'console_scripts': ['jsoneditor = jsoneditor:main']
+    }
 )

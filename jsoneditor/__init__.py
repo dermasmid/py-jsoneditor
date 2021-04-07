@@ -1,1 +1,1 @@
-from .jsoneditor import editjson
+from .jsoneditor import editjson, main

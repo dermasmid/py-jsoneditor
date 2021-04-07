@@ -7,6 +7,7 @@ import time
 import webbrowser
 import random
 import os
+import sys
 
 # get installation dir
 install_dir = os.path.dirname(os.path.realpath(__file__))
@@ -26,12 +27,12 @@ def editjson(data: Union[dict, str], finnish_callback: callable = None):
     port = random.randint(1023, 65353)
 
     @app.route('/')
-    def jsoneditor():
+    def jsoneditor_route():
         return render_template('index.html', data=data, send_back_json= bool(finnish_callback))
 
     if finnish_callback:
         @app.route('/post', methods=['POST'])
-        def foo():
+        def callback_route():
             data = request.json['data']
             finnish_callback(data)
             return json.dumps({'success':True}), 200, {'ContentType':'application/json'} 
@@ -39,3 +40,14 @@ def editjson(data: Union[dict, str], finnish_callback: callable = None):
     server = Process(target=app.run, args=('localhost', port))
     server.start()
     webbrowser.open(f'http://localhost:{port}/')
+
+def main():
+    if not os.isatty(0):
+        data = ''.join(x for x in sys.stdin)
+    else:
+        if len(sys.argv) == 2:
+            data = sys.argv[1]
+        else:
+            raise Exception('Got invalid number of arguments')
+
+    editjson(data)
