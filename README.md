@@ -6,6 +6,7 @@ pip3 install jsoneditor
 
 # Usage
 
+In python:
 ```python
 import requests
 import jsoneditor
@@ -13,3 +14,10 @@ import jsoneditor
 data = requests.get('your endpiont here').json()
 jsoneditor.editjson(data)
 ```
+From the terminal:
+
+You got a cuple of options.
+
+1. `python -m jsoneditor '{"Hey": "Hi"}'`
+2. `curl https://jsonplaceholder.typicode.com/comments | jsoneditor`
+3. `jsoneditor '{"Hey": "Hi"}'`
