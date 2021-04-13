@@ -1,3 +1,6 @@
+import sys
+sys.path.append('../jsoneditor')
+
 import jsoneditor
 import requests
 
@@ -6,4 +9,4 @@ jsoneditor.editjson(requests.get('https://jsonplaceholder.typicode.com/comments'
 
 
 # Test editing
-jsoneditor.editjson({'hi': 'ho'}, lambda data: print(data))
+jsoneditor.editjson({'hi': '#466'}, lambda data: print(data), {'colorPicker': True})

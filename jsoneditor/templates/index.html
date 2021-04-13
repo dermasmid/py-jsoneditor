@@ -9,7 +9,8 @@
     <div id="jsoneditor"></div>
     <script>
         const container = document.getElementById("jsoneditor");
-        const editor = new JSONEditor(container, {});
+        const options = {{ options|tojson }};
+        const editor = new JSONEditor(container, options ? options : {colorPicker: false});
         const initialJson = {{ data|tojson }};
         editor.set(initialJson);
         if ({{ send_back_json|tojson }}) {

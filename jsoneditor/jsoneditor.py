@@ -19,7 +19,7 @@ log.setLevel(logging.ERROR)
 os.environ['WERKZEUG_RUN_MAIN'] = 'true'
 
 
-def editjson(data: Union[dict, str], finnish_callback: callable = None):
+def editjson(data: Union[dict, str], finnish_callback: callable = None, options: dict = None):
     if type(data) is str:
         data = json.loads(data)
 
@@ -28,7 +28,7 @@ def editjson(data: Union[dict, str], finnish_callback: callable = None):
 
     @app.route('/')
     def jsoneditor_route():
-        return render_template('index.html', data=data, send_back_json= bool(finnish_callback))
+        return render_template('index.html', data=data, send_back_json= bool(finnish_callback), options= options)
 
     if finnish_callback:
         @app.route('/post', methods=['POST'])
