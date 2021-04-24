@@ -1,13 +1,18 @@
 from typing import Union
-from flask import Flask, request
-from flask import render_template
+from flask import Flask, request, render_template
 import json
-from multiprocessing import Process
+from multiprocessing import Process, set_start_method
 import time
 import webbrowser
 import random
 import os
 import sys
+import platform
+
+
+
+if platform.system() == 'Darwin':
+    set_start_method("fork")
 
 # get installation dir
 install_dir = os.path.dirname(os.path.realpath(__file__))
