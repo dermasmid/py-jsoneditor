@@ -21,3 +21,9 @@ You got a cuple of options.
 1. `python -m jsoneditor '{"Hey": "Hi"}'`
 2. `curl https://jsonplaceholder.typicode.com/comments | jsoneditor`
 3. `jsoneditor '{"Hey": "Hi"}'`
+
+## Build
+
+```bash
+python3 setup.py sdist
+```
