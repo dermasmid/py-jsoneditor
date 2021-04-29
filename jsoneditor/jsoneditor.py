@@ -49,12 +49,21 @@ def editjson(data: Union[dict, str], finnish_callback: callable = None, options:
         return render_template('index.html', data=data, send_back_json= bool(finnish_callback), options= options)
 
     if finnish_callback:
-        @app.route('/post', methods=['POST'])
+        @app.route('/callback', methods=['POST'])
         def callback_route():
             data = request.json['data']
             finnish_callback(json.dumps(data))
-            return json.dumps({'success':True}), 200, {'ContentType':'application/json'} 
+            return json.dumps({'success':True}), 200, {'ContentType':'application/json'}
     
+    @app.route('/close', methods=['GET'])
+    def close():
+        func = request.environ.get('werkzeug.server.shutdown')
+        if func is None:
+            raise RuntimeError('Not running with the Werkzeug Server')
+        func()
+        return 'Shutting down...'
+
+
     server = Process(target=app.run, args=('localhost', port))
     server.start()
     webbrowser.open(f'http://localhost:{port}/')

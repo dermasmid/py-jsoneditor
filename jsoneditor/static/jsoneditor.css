@@ -1211,6 +1211,10 @@ pre.jsoneditor-preview,
   background: url("checkmark.svg");
 }
 
+.jsoneditor-menu .finnish-and-shuttdown {
+  background: url("close.svg");
+}
+
 .jsoneditor-menu > button,
 .jsoneditor-menu > .jsoneditor-modes > button {
   width: 26px;
