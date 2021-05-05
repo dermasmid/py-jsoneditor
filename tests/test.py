@@ -14,7 +14,7 @@ jsoneditor.editjson(requests.get('https://jsonplaceholder.typicode.com/posts').j
 # Test string
 jsoneditor.editjson(requests.get('https://jsonplaceholder.typicode.com/comments').text)
 
-#Test editing
+# Test editing
 jsoneditor.editjson({'hi': '#466'}, lambda data: print(data), {'colorPicker': True})
 
 

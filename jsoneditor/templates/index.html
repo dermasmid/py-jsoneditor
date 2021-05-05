@@ -1,7 +1,7 @@
 <html lang="en">
 <head>
     <meta charset="utf-8">
-    <link rel="shortcut icon" href="static/favicon.ico">
+    <link rel="icon" type="image/png" href="static/favicon.ico"/>
     <link href="static/jsoneditor.css" rel="stylesheet" type="text/css">
     <script src="static/jsoneditor.js"></script>
 </head>
@@ -35,7 +35,9 @@
         closeButton.onclick = () => {
             let xhr = new XMLHttpRequest();
             xhr.onreadystatechange = function() {
-                window.close();
+                if (this.readyState == 4 && this.status == 200) {
+                    window.close();
+                }
             }
             xhr.open("GET", window.location.origin + '/close');
             xhr.send(null);

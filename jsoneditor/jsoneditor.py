@@ -1,8 +1,5 @@
-from typing import Union
-from flask import Flask, request, render_template
 import json
-from multiprocessing import Process, set_start_method
-import time
+import multiprocessing
 import webbrowser
 import random
 import os
@@ -10,22 +7,43 @@ import sys
 import platform
 import re
 import requests
+import mimetypes
+import signal
+from typing import Union
+from wsgiref.simple_server import make_server, WSGIRequestHandler
+from jinja2 import Environment, FileSystemLoader
+from multiprocessing import Process, set_start_method
 
 
 if platform.system() == 'Darwin':
     set_start_method("fork")
 
-# get installation dir
+# Get installation dir
 install_dir = os.path.dirname(os.path.realpath(__file__))
 
-# disable flask logs
-import logging
-log = logging.getLogger('werkzeug')
-log.setLevel(logging.ERROR)
-os.environ['WERKZEUG_RUN_MAIN'] = 'true'
+
+# Gracefull kill for nicer killing of the process
+def graceful_kill(x, y):
+    for i in multiprocessing.active_children():
+        i.terminate()
+    raise KeyboardInterrupt
+
+signal.signal(signal.SIGINT, graceful_kill)
 
 
-def editjson(data: Union[dict, str], finnish_callback: callable = None, options: dict = None):
+# Main logic
+def editjson(data: Union[dict, str], callback: callable = None, options: dict = None):
+
+    # Make wsgi handler
+    class AltWsgiHandler(WSGIRequestHandler):
+        def log_message(self, format, *args):
+            pass
+
+    def send_response(status, content_type, respond):
+        headers = [('Content-type', content_type)]
+        respond(status, headers)
+    
+    # Get json data
     if type(data) is str:
         try:
             data = json.loads(data)
@@ -41,33 +59,50 @@ def editjson(data: Union[dict, str], finnish_callback: callable = None, options:
             else:
                 raise ValueError('No valid value passed')
 
-    app = Flask('jsoneditor', template_folder= install_dir + '/templates')
-    port = random.randint(1023, 65353)
-
-    @app.route('/')
-    def jsoneditor_route():
-        return render_template('index.html', data=data, send_back_json= bool(finnish_callback), options= options)
-
-    if finnish_callback:
-        @app.route('/callback', methods=['POST'])
-        def callback_route():
-            data = request.json['data']
-            finnish_callback(json.dumps(data))
-            return json.dumps({'success':True}), 200, {'ContentType':'application/json'}
+    # Server logic
+    def wsgi_app(environ, respond):
+        path = environ['PATH_INFO']
+        method = environ['REQUEST_METHOD']
+        file_path = install_dir + path
+        j2_env = Environment(loader=FileSystemLoader(install_dir + '/templates'))
+        # index.html
+        if method == 'GET':
+            if path == '/':
+                send_response('200 OK', 'text/html', respond)
+                html = j2_env.get_template('index.html').render(data=data, send_back_json=bool(callback), options=options)
+                yield html.encode('utf-8')
+            # Close endpoint
+            elif path == '/close':
+                send_response('200 OK', 'text/plain', respond)
+                yield b''
+                os.kill(os.getpid(), 9)
+            # Serve static files
+            elif path.startswith('/static') and os.path.exists(file_path):
+                type = mimetypes.guess_type(file_path)[0]
+                send_response('200 OK', type, respond)
+                yield open(file_path, "rb").read()
+            # 404
+            else:
+                send_response('404 - Not Found', 'text/plain', respond)
+                yield b''
+        # callback endpoint
+        elif method == 'POST':
+            if path == '/callback':
+                request_body_size = int(environ['CONTENT_LENGTH'])
+                callback_data = json.loads(environ['wsgi.input'].read(request_body_size).decode('utf-8'))['data']
+                callback(callback_data)
+                send_response('200 OK', 'text/plain', respond)
+                yield b''
     
-    @app.route('/close', methods=['GET'])
-    def close():
-        func = request.environ.get('werkzeug.server.shutdown')
-        if func is None:
-            raise RuntimeError('Not running with the Werkzeug Server')
-        func()
-        return 'Shutting down...'
-
-
-    server = Process(target=app.run, args=('localhost', port))
-    server.start()
+    # Start server
+    port = random.randint(1023, 65353)
+    server = make_server('', port, wsgi_app, handler_class=AltWsgiHandler)
+    process = Process(target=server.serve_forever)
+    process.start()
     webbrowser.open(f'http://localhost:{port}/')
 
+
+# cli function
 def main():
     if '-o' in sys.argv:
         sys.argv.remove('-o')
@@ -78,8 +113,8 @@ def main():
         data = ''.join(x for x in sys.stdin)
     else:
         if len(sys.argv) == 2:
-            data = sys.argv[1]            
+            data = sys.argv[1]
         else:
             raise Exception('Got invalid number of arguments')
 
-    editjson(data= data, finnish_callback= callback)
+    editjson(data=data, callback=callback)

@@ -2,7 +2,7 @@ from setuptools import setup
 import pathlib
 
 
-version = '0.9.0'
+version = '0.10.0'
 
 HERE = pathlib.Path(__file__).parent
 
@@ -24,7 +24,7 @@ setup(
     author = 'Cheskel Twersky',
     author_email = 'twerskycheskel@gmail.com',
     description = 'Visualize and edit JSON',
-    keywords = 'python3 JSON jsoneditor',
+    keywords = 'python3 JSON jsoneditor api',
     classifiers = [
         "Programming Language :: Python :: 3",
         "License :: OSI Approved :: MIT License",
