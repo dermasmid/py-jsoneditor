@@ -28,6 +28,11 @@
  * @date    2021-03-24
  */
 
+/* 
+This code is from the jsoneditor project
+https://github.com/josdejong/jsoneditor
+*/
+
 (function webpackUniversalModuleDefinition(root, factory) {
 	if(typeof exports === 'object' && typeof module === 'object')
 		module.exports = factory();

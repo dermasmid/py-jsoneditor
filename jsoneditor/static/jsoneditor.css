@@ -1,3 +1,8 @@
+/* 
+This code is from the jsoneditor project
+https://github.com/josdejong/jsoneditor
+*/
+
 .jsoneditor input,
 .jsoneditor input:not([type]),
 .jsoneditor input[type="text"],
@@ -1208,11 +1213,11 @@ pre.jsoneditor-preview,
 }
 
 .jsoneditor-menu .send-back-json {
-  background: url("checkmark.svg");
+  background: url("img/checkmark.svg");
 }
 
 .jsoneditor-menu .finnish-and-shuttdown {
-  background: url("close.svg");
+  background: url("img/close.svg");
 }
 
 .jsoneditor-menu > button,
