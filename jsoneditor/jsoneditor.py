@@ -1,5 +1,6 @@
 import json
 import multiprocessing
+import time
 import webbrowser
 import random
 import os
@@ -11,21 +12,20 @@ import signal
 from typing import Union
 from wsgiref.simple_server import make_server, WSGIRequestHandler
 from jinja2 import Environment, FileSystemLoader
-from multiprocessing import Process
+from multiprocessing import Process, set_start_method
+import platform
 
 
 # Get installation dir
 install_dir = os.path.dirname(os.path.realpath(__file__))
 
 
-# Gracefull kill for nicer killing of the process
 def graceful_kill(x, y):
     for i in multiprocessing.active_children():
         i.terminate()
     raise KeyboardInterrupt
 
 signal.signal(signal.SIGINT, graceful_kill)
-# signal.signal(signal.CTRL_C_EVENT, graceful_kill)
 
 class AltWsgiHandler(WSGIRequestHandler):
     def log_message(self, format, *args) -> None:
@@ -38,7 +38,10 @@ class Server:
         self.callback = callback
         self.options = options
         self.port = random.randint(1023, 65353)
+        self.platform = platform.system()
 
+    def set_run_in_background(self, run_in_background: bool):
+        self.run_in_background = run_in_background
 
     def send_response(self, status, content_type, respond):
         headers = [('Content-type', content_type)]
@@ -83,6 +86,8 @@ class Server:
             elif path == '/close':
                 self.send_response('200 OK', 'text/plain', respond)
                 yield b''
+                if self.platform == 'Windows' and self.run_in_background:
+                    os.kill(os.getppid(), signal.SIGTERM)
                 os.kill(os.getpid(), 9)
             # Serve static files
             elif path.startswith('/static') and os.path.exists(file_path):
@@ -108,15 +113,42 @@ class Server:
         server.serve_forever()
 
 
-
 # Entry point
-def editjson(data: Union[dict, str], callback: callable = None, options: dict = None) -> None:
-
+def editjson(data: Union[dict, str], callback: callable = None, options: dict = None, run_in_background: bool = None) -> None:
     server = Server(data, callback, options)
-    process = Process(target=server.start)
-    process.start()
+
+    # we don't use multiprocessing with windows unless explicitly set run_in_background to true
+    if run_in_background == None:
+        if server.platform == 'Windows':
+            run_in_background = False
+        else:
+            run_in_background = True
+
+    server.set_run_in_background(run_in_background)
+
+    # spawn is harder to work with
+    if run_in_background == True and server.platform == 'Darwin':
+        set_start_method("fork")
+
+    if run_in_background:
+        process = Process(target=server.start)
+        process.start()
+    else:
+        # note this will block the execution of the script
+        server.start()
+       
     webbrowser.open(f'http://localhost:{server.port}/')
 
+# function to keep the main process alive - bcuz you can't send a SIGINT after the main process finnished executing
+def windows_keep_main_process_alive() -> None:
+    '''
+    Call this at the end of your script if you are on windows and set run_in_background to True,
+    Otherwise you won't be able to quit
+    '''
+    def stop(x,y):
+        raise KeyboardInterrupt
+    signal.signal(signal.SIGTERM, stop)
+    time.sleep(4294967)
 
 # cli function
 def main() -> None:

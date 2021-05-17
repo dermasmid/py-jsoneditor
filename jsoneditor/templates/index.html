@@ -40,6 +40,9 @@
                 }
             }
             xhr.open("GET", window.location.origin + '/close');
+            xhr.onerror = () => {
+                window.close();  
+            }
             xhr.send(null);
         }
     </script>

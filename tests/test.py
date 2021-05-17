@@ -1,11 +1,16 @@
 import sys
 import os
+import platform
 
-sys.path.insert(0, '/'.join(os.path.dirname(os.path.realpath(__file__)).split('/')[:-1]) + '/jsoneditor')
+if platform.system() == 'Windows':
+    separator = '\\'
+else:
+    separator = '/'
+
+sys.path.insert(0, '/'.join(os.path.dirname(os.path.realpath(__file__)).split(separator)[:-1]) + '/jsoneditor')
 
 import jsoneditor
 import requests
-from multiprocessing import set_start_method
 
 
 
