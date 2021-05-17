@@ -109,6 +109,9 @@ class Server:
 
 
     def start(self):
+        # After we start the server, we cannot run anything anymore, so do it now.
+        if not self.run_in_background:
+            webbrowser.open(f'http://localhost:{self.port}/')
         server = make_server('', self.port, self.wsgi_app, handler_class=AltWsgiHandler)
         server.serve_forever()
 
@@ -133,11 +136,12 @@ def editjson(data: Union[dict, str], callback: callable = None, options: dict = 
     if run_in_background:
         process = Process(target=server.start)
         process.start()
+        webbrowser.open(f'http://localhost:{server.port}/')
     else:
         # note this will block the execution of the script
         server.start()
        
-    webbrowser.open(f'http://localhost:{server.port}/')
+
 
 # function to keep the main process alive - bcuz you can't send a SIGINT after the main process finnished executing
 def windows_keep_main_process_alive() -> None:
