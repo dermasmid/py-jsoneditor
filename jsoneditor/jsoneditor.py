@@ -10,6 +10,30 @@ import mimetypes
 from typing import Union
 from wsgiref.simple_server import make_server, WSGIRequestHandler
 from jinja2 import Environment, FileSystemLoader
+import signal
+import platform
+
+is_windows = platform.system() == 'Windows'
+
+if is_windows:
+    servers = []
+    import ctypes
+    from ctypes import wintypes
+
+    kernel32 = ctypes.WinDLL('kernel32', use_last_error=True)
+    HANDLER_ROUTINE = ctypes.WINFUNCTYPE(wintypes.BOOL, wintypes.DWORD)
+    kernel32.SetConsoleCtrlHandler.argtypes = (HANDLER_ROUTINE, wintypes.BOOL)
+
+    @HANDLER_ROUTINE
+    def handler(ctrl):
+        if ctrl == 0:
+            for server in servers:
+                server.shutdown()
+            handled = True
+        else:
+            handled = False
+        return handled
+    kernel32.SetConsoleCtrlHandler(handler, True)
 
 
 
@@ -95,8 +119,8 @@ class Server:
 
 
     def start(self):
-        server = make_server('', self.port, self.wsgi_app, handler_class=AltWsgiHandler)
-        server.serve_forever()
+        self.server = make_server('', self.port, self.wsgi_app, handler_class=AltWsgiHandler)
+        self.server.serve_forever()
 
 
 # Entry point
@@ -105,6 +129,8 @@ def editjson(data: Union[dict, str], callback: callable = None, options: dict = 
     thread = threading.Thread(target=server.start)
     thread.start()
     webbrowser.open(f'http://localhost:{server.port}/')
+    if is_windows:
+        servers.append(server.server)
 
 
 
