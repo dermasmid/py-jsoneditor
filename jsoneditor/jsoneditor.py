@@ -10,31 +10,6 @@ import mimetypes
 from typing import Union
 from wsgiref.simple_server import make_server, WSGIRequestHandler
 from jinja2 import Environment, FileSystemLoader
-import signal
-import platform
-
-is_windows = platform.system() == 'Windows'
-
-if is_windows:
-    servers = []
-    import ctypes
-    from ctypes import wintypes
-
-    kernel32 = ctypes.WinDLL('kernel32', use_last_error=True)
-    HANDLER_ROUTINE = ctypes.WINFUNCTYPE(wintypes.BOOL, wintypes.DWORD)
-    kernel32.SetConsoleCtrlHandler.argtypes = (HANDLER_ROUTINE, wintypes.BOOL)
-
-    @HANDLER_ROUTINE
-    def handler(ctrl):
-        if ctrl == 0:
-            for server in servers:
-                server.shutdown()
-            handled = True
-        else:
-            handled = False
-        return handled
-    kernel32.SetConsoleCtrlHandler(handler, True)
-
 
 
 # Get installation dir
@@ -43,7 +18,8 @@ install_dir = os.path.dirname(os.path.realpath(__file__))
 
 class AltWsgiHandler(WSGIRequestHandler):
     def log_message(self, format, *args) -> None:
-        if self.path == '/close':
+        self.server.number_of_requests += 1
+        if self.path == '/close' or (not self.server.run_in_background and self.server.number_of_requests == 5):
             self.server._BaseServer__shutdown_request = True
 
 
@@ -53,6 +29,10 @@ class Server:
         self.data = self.get_json(data)
         self.callback = callback
         self.options = options
+        self.get_random_port()
+
+
+    def get_random_port(self):
         self.port = random.randint(1023, 65353)
 
 
@@ -118,19 +98,34 @@ class Server:
                 yield b''
 
 
-    def start(self):
-        self.server = make_server('', self.port, self.wsgi_app, handler_class=AltWsgiHandler)
-        self.server.serve_forever()
+    def start(self, run_in_background: bool = True):
+        # We might get an error if the port is in use.
+        while True:
+            try:
+                server = make_server('', self.port, self.wsgi_app, handler_class=AltWsgiHandler)
+                break
+            except OSError:
+                self.get_random_port()
+
+        server.number_of_requests = 0
+        server.run_in_background = run_in_background
+
+        if not run_in_background:
+            webbrowser.open(f'http://localhost:{self.port}/')
+        
+        server.serve_forever()
 
 
 # Entry point
 def editjson(data: Union[dict, str], callback: callable = None, options: dict = None) -> None:
     server = Server(data, callback, options)
-    thread = threading.Thread(target=server.start)
-    thread.start()
-    webbrowser.open(f'http://localhost:{server.port}/')
-    if is_windows:
-        servers.append(server.server)
+
+    if bool(callback):
+        thread = threading.Thread(target=server.start)
+        thread.start()
+        webbrowser.open(f'http://localhost:{server.port}/')
+    else:
+        server.start(run_in_background= False)
 
 
 

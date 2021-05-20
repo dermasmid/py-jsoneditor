@@ -27,23 +27,25 @@
                     data: editor.get()
                 }));
             }
-        }
-        const closeButton = document.createElement('button')
-        closeButton.className = 'finnish-and-shuttdown'
-        closeButton.title = 'Finnish and shuttdown'
-        jsoneditorMenu.append(closeButton)
-        closeButton.onclick = () => {
-            let xhr = new XMLHttpRequest();
-            xhr.onreadystatechange = function() {
-                if (this.readyState == 4 && this.status == 200) {
-                    window.close();
+
+            // we only show the close button when we have a callback
+            const closeButton = document.createElement('button')
+            closeButton.className = 'finnish-and-shuttdown'
+            closeButton.title = 'Finnish and shuttdown'
+            jsoneditorMenu.append(closeButton)
+            closeButton.onclick = () => {
+                let xhr = new XMLHttpRequest();
+                xhr.onreadystatechange = function() {
+                    if (this.readyState == 4 && this.status == 200) {
+                        window.close();
+                    }
                 }
+                xhr.open("GET", window.location.origin + '/close');
+                xhr.onerror = () => {
+                    window.close();  
+                }
+                xhr.send(null);
             }
-            xhr.open("GET", window.location.origin + '/close');
-            xhr.onerror = () => {
-                window.close();  
-            }
-            xhr.send(null);
         }
     </script>
 </body>
