@@ -22,6 +22,14 @@ You got a cuple of options.
 2. `curl https://jsonplaceholder.typicode.com/comments | jsoneditor`
 3. `jsoneditor '{"Hey": "Hi"}'`
 
+## Forms of passing the json
+
+You can pass the json in any of the following forms:
+* as valid json string
+* as a python dict
+* as a url the points to valid json
+* as a file path that is valid json
+
 ## Build
 
 ```bash

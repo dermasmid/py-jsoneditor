@@ -55,6 +55,9 @@ class Server:
                         data = json.loads(text_data)
                     except ValueError:
                         raise ValueError('The url passed did not return valid JSON')
+                elif os.path.exists(data):
+                    with open(data, 'r') as f:
+                        data = json.load(f)
                 else:
                     raise ValueError('No valid value passed')
         return data
