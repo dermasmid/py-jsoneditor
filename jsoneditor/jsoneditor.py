@@ -9,7 +9,6 @@ import requests
 import mimetypes
 from typing import Union
 from wsgiref.simple_server import make_server, WSGIRequestHandler
-from jinja2 import Environment, FileSystemLoader
 
 
 # Get installation dir
@@ -19,7 +18,7 @@ install_dir = os.path.dirname(os.path.realpath(__file__))
 class AltWsgiHandler(WSGIRequestHandler):
     def log_message(self, format, *args) -> None:
         self.server.number_of_requests += 1
-        if self.path == '/close' or (not self.server.run_in_background and self.server.number_of_requests == 5):
+        if self.path == '/close' or (not self.server.run_in_background and self.server.number_of_requests == 7):
             self.server._BaseServer__shutdown_request = True
 
 
@@ -67,23 +66,26 @@ class Server:
         path = environ['PATH_INFO']
         method = environ['REQUEST_METHOD']
         file_path = install_dir + path
-        j2_env = Environment(loader=FileSystemLoader(install_dir + '/templates'))
         # index.html
         if method == 'GET':
             if path == '/':
                 self.send_response('200 OK', 'text/html', respond)
-                html = j2_env.get_template('index.html').render(
-                    data=self.data, 
-                    send_back_json=bool(self.callback), 
-                    options=self.options
-                    )
-                yield html.encode('utf-8')
+                yield open(install_dir + '/files/index.html', "rb").read()
+            # Data endpiont
+            elif path == '/get_data':
+                self.send_response('200 OK', 'application/json', respond)
+                data = {
+                    'data': self.data,
+                    'callback': bool(self.callback),
+                    'options': self.options
+                }
+                yield json.dumps(data).encode('utf-8')
             # Close endpoint
             elif path == '/close':
                 self.send_response('200 OK', 'text/plain', respond)
                 yield b''
             # Serve static files
-            elif path.startswith('/static') and os.path.exists(file_path):
+            elif path.startswith('/files') and os.path.exists(file_path):
                 type = mimetypes.guess_type(file_path)[0]
                 self.send_response('200 OK', type, respond)
                 yield open(file_path, "rb").read()

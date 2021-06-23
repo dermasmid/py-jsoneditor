@@ -2,3 +2,6 @@
 build/
 dist/
 *.egg-info/
+
+# the https://github.com/josdejong/jsoneditor repo
+.app-jsoneditor

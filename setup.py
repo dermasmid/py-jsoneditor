@@ -2,7 +2,7 @@ from setuptools import setup
 import pathlib
 
 
-version = '1.1.0'
+version = '1.2.0'
 
 HERE = pathlib.Path(__file__).parent
 

@@ -1,3 +1,2 @@
-recursive-include jsoneditor/static/ *
-recursive-include jsoneditor/templates/ *
+recursive-include jsoneditor/files/ *
 include requirements.txt
