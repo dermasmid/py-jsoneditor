@@ -1,3 +1,13 @@
+# Overview
+`jsoneditor` will help you a lot if you are working with API's often.
+
+When you first get data from a endpiont and you want to explore it - you can call the `editjson` function, and you will get a browser window with all the json you passed - right there.
+
+See below:
+
+![](https://res.cloudinary.com/dermasmid/image/upload/v1624745064/Screenshot_from_2021-06-27_01-02-58_qymcrb.png)
+
+
 # Installation
 
 ```bash
@@ -11,7 +21,7 @@ In python:
 import requests
 import jsoneditor
 
-data = requests.get('your endpiont here').json()
+data = requests.get('https://jsonplaceholder.typicode.com/comments').json()
 jsoneditor.editjson(data)
 ```
 From the terminal:
@@ -35,3 +45,6 @@ You can pass the json in any of the following forms:
 ```bash
 python3 setup.py sdist
 ```
+
+# Credits
+* [jsoneditor](https://github.com/josdejong/jsoneditor)
