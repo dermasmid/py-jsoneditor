@@ -24,10 +24,11 @@ class AltWsgiHandler(WSGIRequestHandler):
 
 class Server:
 
-    def __init__(self, data: Union[dict, str], callback: callable = None, options: dict = None) -> None:
+    def __init__(self, data: Union[dict, str], callback: callable = None, options: dict = None, run_in_background: bool = False) -> None:
         self.data = self.get_json(data)
         self.callback = callback
         self.options = options
+        self.run_in_background = run_in_background
         self.get_random_port()
 
 
@@ -103,7 +104,7 @@ class Server:
                 yield b''
 
 
-    def start(self, run_in_background: bool = True):
+    def start(self):
         # We might get an error if the port is in use.
         while True:
             try:
@@ -113,24 +114,24 @@ class Server:
                 self.get_random_port()
 
         server.number_of_requests = 0
-        server.run_in_background = run_in_background
+        server.run_in_background = self.run_in_background
 
-        if not run_in_background:
+        if not self.run_in_background:
             webbrowser.open(f'http://localhost:{self.port}/')
         
         server.serve_forever()
 
 
 # Entry point
-def editjson(data: Union[dict, str], callback: callable = None, options: dict = None) -> None:
-    server = Server(data, callback, options)
+def editjson(data: Union[dict, str], callback: callable = None, options: dict = None, run_in_background: bool = False) -> None:
+    server = Server(data, callback, options, run_in_background)
 
-    if bool(callback):
+    if bool(callback) or run_in_background:
         thread = threading.Thread(target=server.start)
         thread.start()
         webbrowser.open(f'http://localhost:{server.port}/')
     else:
-        server.start(run_in_background= False)
+        server.start()
 
 
 
