@@ -7,6 +7,7 @@ import sys
 import re
 import requests
 import mimetypes
+import argparse
 from typing import Union
 from wsgiref.simple_server import make_server, WSGIRequestHandler
 
@@ -137,17 +138,25 @@ def editjson(data: Union[dict, str], callback: callable = None, options: dict = 
 
 # cli function
 def main() -> None:
-    if '-o' in sys.argv:
-        sys.argv.remove('-o')
-        callback = print
-    else:
-        callback = None
-    if not os.isatty(0):
-        data = ''.join(x for x in sys.stdin)
-    else:
-        if len(sys.argv) == 2:
-            data = sys.argv[1]
-        else:
-            raise Exception('Got invalid number of arguments')
+    parser = argparse.ArgumentParser(description=('View and edit your JSON data in the browser.'))
+    parser.add_argument('data', help='The JSON data, can be valid JSON or a url that will return JSON or a file path.', nargs='?')
+    parser.add_argument('-o', help='Add a button that will output the json back to the console.', action='store_true')
+    parser.add_argument('-b', help='Keep running in backround.', action='store_true')
+    args = parser.parse_args()
 
-    editjson(data=data, callback=callback)
+    options = {}
+    if args.o:
+        options['callback'] = print
+
+    if args.b:
+        options['run_in_background'] = True
+
+    if not os.isatty(0):
+        options['data'] = ''.join(x for x in sys.stdin)
+    else:
+        if args.data:
+            options['data'] = args.data
+        else:
+            raise ValueError('No data passed')
+
+    editjson(**options)
