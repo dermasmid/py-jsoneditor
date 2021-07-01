@@ -1,8 +1,8 @@
+from jsoneditor import __version__
 from setuptools import setup
 import pathlib
 
 
-version = '1.3.0'
 
 HERE = pathlib.Path(__file__).parent
 
@@ -14,7 +14,7 @@ with open(HERE / 'requirements.txt', encoding='utf-8') as f:
 
 setup(
     name = 'jsoneditor',
-    version = version,
+    version = __version__,
     packages = ['jsoneditor'],
     include_package_data = True,
     url = 'https://github.com/dermasmid/py-jsoneditor',

@@ -125,9 +125,9 @@ class Server:
 
 # Entry point
 def editjson(data: Union[dict, str], callback: callable = None, options: dict = None, run_in_background: bool = False) -> None:
-    server = Server(data, callback, options, run_in_background)
+    server = Server(data, callback, options, run_in_background or bool(callback))
 
-    if bool(callback) or run_in_background:
+    if server.run_in_background:
         thread = threading.Thread(target=server.start)
         thread.start()
         webbrowser.open(f'http://localhost:{server.port}/')
