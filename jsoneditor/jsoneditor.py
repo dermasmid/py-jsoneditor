@@ -7,6 +7,7 @@ import sys
 import requests
 import mimetypes
 import argparse
+import pyperclip
 from typing import Union
 from collections.abc import Mapping
 from urllib.parse import urlparse
@@ -154,6 +155,7 @@ def main() -> None:
     parser.add_argument('data', help='The JSON data, can be valid JSON or a url that will return JSON or a file path.', nargs='?')
     parser.add_argument('-o', help='Add a button that will output the json back to the console.', action='store_true')
     parser.add_argument('-b', help='Keep running in backround.', action='store_true')
+    parser.add_argument('-c', help='Get JSON input from clipboard.', action='store_true')
     args = parser.parse_args()
 
     options = {}
@@ -168,6 +170,8 @@ def main() -> None:
     else:
         if args.data:
             options['data'] = args.data
+        elif args.c:
+            options['data'] = pyperclip.paste()
         else:
             raise ValueError('No data passed')
 
