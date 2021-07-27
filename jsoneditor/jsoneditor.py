@@ -146,7 +146,7 @@ def editjson(data: Union[dict, str], callback: callable = None, options: dict = 
 def open_browser(port: int) -> None:
     browser_opened = webbrowser.open(f'http://localhost:{port}/')
     if not browser_opened:
-        print(f"couldn't launch brower, Please open this link to see the JSON: http://localhost:{port}/")
+        print(f"Couldn't launch brower, Please open this link to see the JSON: http://localhost:{port}/")
 
 
 # cli function
