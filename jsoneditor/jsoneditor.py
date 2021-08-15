@@ -1,3 +1,4 @@
+from io import TextIOWrapper
 import json
 import threading
 import webbrowser
@@ -7,6 +8,7 @@ import sys
 import requests
 import mimetypes
 import argparse
+import csv
 import pyperclip
 from typing import Union
 from collections.abc import Mapping
@@ -27,12 +29,20 @@ class AltWsgiHandler(WSGIRequestHandler):
 
 class Server:
 
-    def __init__(self, data: Union[dict, str], callback: callable = None, options: dict = None, run_in_background: bool = False) -> None:
-        self.data = self.get_json(data)
+    def __init__(
+        self,
+        data: Union[dict, str],
+        callback: callable = None,
+        options: dict = None,
+        run_in_background: bool = False,
+        is_csv: bool = False
+        ) -> None:
         self.callback = callback
         self.options = options
         self.run_in_background = run_in_background
+        self.is_csv = is_csv
         self.get_random_port()
+        self.data = self.get_json(data)
 
 
     def get_random_port(self):
@@ -44,32 +54,58 @@ class Server:
         respond(status, headers)
 
 
-    def get_json(self, data):
+    def get_json(self, source: Union[dict, str, list]) -> dict:
         # Get json data
-        if type(data) is str:
-            try:
-                data = json.loads(data)
-            except ValueError:
-                try:
-                    result = urlparse(data)
-                    is_url = all([result.scheme, result.netloc])
-                except:
-                    is_url = False
-                if os.path.exists(data):
-                    with open(data, 'r') as f:
-                        data = json.load(f)
-                elif is_url:
-                    text_data = requests.get(data).text
-                    try:
-                        data = json.loads(text_data)
-                    except ValueError:
-                        raise ValueError('The url passed did not return valid JSON')
-                else:
-                    raise ValueError('No valid value passed')
-        elif isinstance(data, Mapping):
-            # convert to dict as some mappings are not json serializable
-            data = dict(data)
+        retrieved_data = None
+        if type(source) is str:
+            if self.is_url(source):
+                retrieved_data = requests.get(source).text
+            elif self.is_file(source):
+                retrieved_data = open(source, 'r')
+            else:
+                retrieved_data = source
+            data = self.load_json(retrieved_data)
+        
+        elif isinstance(source, Mapping):
+            # Convert to dict as some mappings are not json serializable
+            data = dict(source)
+        else:
+            # Source is a list
+            data = source
         return data
+
+
+    @staticmethod
+    def is_url(source: str) -> bool:
+        try:
+            result = urlparse(source)
+            is_url = all([result.scheme, result.netloc])
+        except:
+            is_url = False
+        return is_url
+
+
+    @staticmethod
+    def is_file(source: str) -> bool:
+        return os.path.exists(source)
+
+
+    def load_json(self, source):
+        if self.is_csv:
+            if isinstance(source, str):
+                # Throws an error if the input is not valid csv
+                csv.Sniffer().sniff(source, delimiters=',:;\t')
+                result = list(csv.DictReader(source.split('\n')))
+            elif isinstance(source, TextIOWrapper):
+                result = list(csv.DictReader(source))
+        else:
+            if isinstance(source, str):
+                result = json.loads(source)
+            elif isinstance(source, TextIOWrapper):
+                result = json.load(source)
+        if isinstance(source, TextIOWrapper):
+            source.close()
+        return result
 
 
     def wsgi_app(self, environ, respond):
@@ -132,8 +168,14 @@ class Server:
 
 
 # Entry point
-def editjson(data: Union[dict, str], callback: callable = None, options: dict = None, run_in_background: bool = False) -> None:
-    server = Server(data, callback, options, run_in_background or bool(callback))
+def editjson(
+    data: Union[dict, str],
+    callback: callable = None,
+    options: dict = None,
+    run_in_background: bool = False,
+    is_csv: bool = False
+    ) -> None:
+    server = Server(data, callback, options, run_in_background or bool(callback), is_csv)
 
     if server.run_in_background:
         thread = threading.Thread(target=server.start)
@@ -146,7 +188,7 @@ def editjson(data: Union[dict, str], callback: callable = None, options: dict = 
 def open_browser(port: int) -> None:
     browser_opened = webbrowser.open(f'http://localhost:{port}/')
     if not browser_opened:
-        print(f"Couldn't launch brower, Please open this link to see the JSON: http://localhost:{port}/")
+        print(f"Couldn't launch browser, Please open this link to see the JSON: http://localhost:{port}/")
 
 
 # cli function
@@ -156,6 +198,7 @@ def main() -> None:
     parser.add_argument('-o', help='Add a button that will output the json back to the console.', action='store_true')
     parser.add_argument('-b', help='Keep running in backround.', action='store_true')
     parser.add_argument('-c', help='Get JSON input from clipboard.', action='store_true')
+    parser.add_argument('--csv', help='Input is CSV.', action='store_true')
     args = parser.parse_args()
 
     options = {}
@@ -164,6 +207,9 @@ def main() -> None:
 
     if args.b:
         options['run_in_background'] = True
+
+    if args.csv:
+        options['is_csv'] = True
 
     if not os.isatty(0):
         options['data'] = ''.join(x for x in sys.stdin)

@@ -29,3 +29,6 @@ jsoneditor.editjson({'hi': '#466'}, print, {'colorPicker': True})
 
 # Test urls
 jsoneditor.editjson('https://jsonplaceholder.typicode.com/users')
+
+# Test csv
+jsoneditor.editjson('test.csv', is_csv=True)
