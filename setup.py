@@ -24,7 +24,7 @@ setup(
     author = 'Cheskel Twersky',
     author_email = 'twerskycheskel@gmail.com',
     description = 'Visualize and edit JSON',
-    keywords = 'python3 JSON jsoneditor api',
+    keywords = 'python3 json jsoneditor api gui editor csv',
     classifiers = [
         "Programming Language :: Python :: 3",
         "License :: OSI Approved :: MIT License",
