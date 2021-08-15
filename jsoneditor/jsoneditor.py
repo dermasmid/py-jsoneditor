@@ -9,6 +9,8 @@ import requests
 import mimetypes
 import argparse
 import csv
+import ast
+import sys
 import pyperclip
 from typing import Union
 from collections.abc import Mapping
@@ -64,7 +66,13 @@ class Server:
                 retrieved_data = open(source, 'r')
             else:
                 retrieved_data = source
-            data = self.load_json(retrieved_data)
+            try:
+                data = self.load_json(retrieved_data)
+            except Exception as e:
+                # We were unable to understand the data, so we print
+                # it so the user can understand what happened
+                print("Input:\n" + source)
+                raise e
         
         elif isinstance(source, Mapping):
             # Convert to dict as some mappings are not json serializable
@@ -100,7 +108,10 @@ class Server:
                 result = list(csv.DictReader(source))
         else:
             if isinstance(source, str):
-                result = json.loads(source)
+                try:
+                    result = json.loads(source)
+                except ValueError:
+                    result = ast.literal_eval(source)
             elif isinstance(source, TextIOWrapper):
                 result = json.load(source)
         if isinstance(source, TextIOWrapper):
