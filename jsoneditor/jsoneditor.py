@@ -37,12 +37,14 @@ class Server:
         callback: callable = None,
         options: dict = None,
         run_in_background: bool = False,
-        is_csv: bool = False
+        is_csv: bool = False,
+        title: str = None
         ) -> None:
         self.callback = callback
         self.options = options
         self.run_in_background = run_in_background
         self.is_csv = is_csv
+        self.title = title
         self.get_random_port()
         self.data = self.get_json(data)
 
@@ -61,10 +63,12 @@ class Server:
         retrieved_data = None
         if type(source) is str:
             if self.is_url(source):
+                self.title = self.title or source.split("/")[-1].split("?")[0]
                 retrieved_data = requests.get(source).text
             elif self.is_file(source):
                 if source.endswith('.csv'):
                     self.is_csv = True
+                self.title = self.title or os.path.basename(source)
                 retrieved_data = open(source, 'r')
             else:
                 retrieved_data = source
@@ -136,7 +140,8 @@ class Server:
                 data = {
                     'data': self.data,
                     'callback': bool(self.callback),
-                    'options': self.options
+                    'options': self.options,
+                    'title': self.title or 'jsoneditor'
                 }
                 yield json.dumps(data).encode('utf-8')
             # Close endpoint
@@ -186,9 +191,10 @@ def editjson(
     callback: callable = None,
     options: dict = None,
     run_in_background: bool = False,
-    is_csv: bool = False
+    is_csv: bool = False,
+    title: str = None
     ) -> None:
-    server = Server(data, callback, options, run_in_background or bool(callback), is_csv)
+    server = Server(data, callback, options, run_in_background or bool(callback), is_csv, title)
 
     if server.run_in_background:
         thread = threading.Thread(target=server.start)
@@ -211,6 +217,7 @@ def main() -> None:
     parser.add_argument('-o', help='Add a button that will output the json back to the console.', action='store_true')
     parser.add_argument('-b', help='Keep running in backround.', action='store_true')
     parser.add_argument('-c', help='Get JSON input from clipboard.', action='store_true')
+    parser.add_argument('-t', help='Title to display in browser window')
     parser.add_argument('--csv', help='Input is CSV.', action='store_true')
     args = parser.parse_args()
 
@@ -220,6 +227,9 @@ def main() -> None:
 
     if args.b:
         options['run_in_background'] = True
+
+    if args.t:
+        options['title'] = args.t
 
     if args.csv:
         options['is_csv'] = True

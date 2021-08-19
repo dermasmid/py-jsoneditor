@@ -16,6 +16,7 @@
         const initialJson = data.data;
         const jsoneditorMenu = document.getElementsByClassName('jsoneditor-menu')[0]
         editor.set(initialJson);
+        document.title = data.title
         if (data.callback) {
             const callbackButton = document.createElement('button')
             callbackButton.className = 'send-back-json'
