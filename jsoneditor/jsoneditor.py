@@ -63,6 +63,8 @@ class Server:
             if self.is_url(source):
                 retrieved_data = requests.get(source).text
             elif self.is_file(source):
+                if source.endswith('.csv'):
+                    self.is_csv = True
                 retrieved_data = open(source, 'r')
             else:
                 retrieved_data = source
