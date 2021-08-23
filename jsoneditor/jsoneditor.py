@@ -110,7 +110,7 @@ class Server:
         if self.is_csv:
             if isinstance(source, str):
                 # Throws an error if the input is not valid csv
-                csv.Sniffer().sniff(source, delimiters=',:;\t')
+                csv.Sniffer().sniff(source[:1024], delimiters=',:;\t')
                 result = list(csv.DictReader(source.split('\n')))
             elif isinstance(source, TextIOWrapper):
                 result = list(csv.DictReader(source))
