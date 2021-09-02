@@ -225,7 +225,7 @@ def main() -> None:
 
     options = {}
     if args.o:
-        options['callback'] = print
+        options['callback'] = lambda data: print(json.dumps(data))
 
     if args.b:
         options['run_in_background'] = True
