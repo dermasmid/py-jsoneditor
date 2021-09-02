@@ -25,7 +25,7 @@ install_dir = os.path.dirname(os.path.realpath(__file__))
 class AltWsgiHandler(WSGIRequestHandler):
     def log_message(self, format, *args) -> None:
         self.server.number_of_requests += 1
-        if self.path == '/close' or (not self.server.run_in_background and self.server.number_of_requests == 7):
+        if self.path == '/close' or (not self.server.keep_running and self.server.number_of_requests == 7):
             self.server._BaseServer__shutdown_request = True
 
 
@@ -36,13 +36,15 @@ class Server:
         data: Union[dict, str],
         callback: callable = None,
         options: dict = None,
-        run_in_background: bool = False,
+        keep_running: bool = False,
+        run_in_thread: bool = False,
         is_csv: bool = False,
         title: str = None
         ) -> None:
         self.callback = callback
         self.options = options
-        self.run_in_background = run_in_background
+        self.keep_running = keep_running
+        self.run_in_thread = run_in_thread
         self.is_csv = is_csv
         self.title = title
         self.get_random_port()
@@ -179,11 +181,11 @@ class Server:
                 self.get_random_port()
 
         server.number_of_requests = 0
-        server.run_in_background = self.run_in_background
+        server.keep_running = self.keep_running
 
-        if not self.run_in_background:
+        if not self.run_in_thread:
             open_browser(self.port)
-        
+
         server.serve_forever()
 
 
@@ -192,13 +194,15 @@ def editjson(
     data: Union[dict, str],
     callback: callable = None,
     options: dict = None,
-    run_in_background: bool = False,
+    keep_running: bool = False,
+    run_in_thread: bool = False,
     is_csv: bool = False,
     title: str = None
     ) -> None:
-    server = Server(data, callback, options, run_in_background or bool(callback), is_csv, title)
+    keep_running = keep_running or bool(callback)
+    server = Server(data, callback, options, keep_running, run_in_thread, is_csv, title)
 
-    if server.run_in_background:
+    if server.run_in_thread:
         thread = threading.Thread(target=server.start)
         thread.start()
         open_browser(server.port)
@@ -219,6 +223,9 @@ def main() -> None:
     parser.add_argument('-o', help='Add a button that will output the json back to the console.', action='store_true')
     parser.add_argument('-b', help='Keep running in backround.', action='store_true')
     parser.add_argument('-c', help='Get JSON input from clipboard.', action='store_true')
+    parser.add_argument('-k', help='Keep alive.', action='store_true')
+    parser.add_argument('-e', help='Edit mode.', action='store_true')
+    parser.add_argument('--out', help='File to output when in edit mode.')
     parser.add_argument('-t', help='Title to display in browser window')
     parser.add_argument('--csv', help='Input is CSV.', action='store_true')
     args = parser.parse_args()
@@ -229,6 +236,9 @@ def main() -> None:
 
     if args.b:
         options['run_in_background'] = True
+
+    if args.k:
+        options['keep_running'] = True
 
     if args.t:
         options['title'] = args.t
@@ -245,5 +255,25 @@ def main() -> None:
             options['data'] = pyperclip.paste()
         else:
             raise ValueError('No data passed')
+
+    if args.e:
+        def edit_file(json_data: dict):
+            file_path = None
+            if args.out:
+                file_path = args.out
+            elif os.path.exists(options['data']):
+                file_path = options['data']
+            if file_path:
+                with open(file_path, 'w') as f:
+                    if args.csv or options['data'].endswith('.csv'):
+                        csv_fields = json_data[0].keys() if json_data else []
+                        writer = csv.DictWriter(f, csv_fields)
+                        writer.writeheader()
+                        writer.writerows(json_data)
+                    else:
+                        json.dump(json_data, f)
+            else:
+                raise ValueError("You have not specified a --out path, I don't know where to save.")
+        options['callback'] = edit_file
 
     editjson(**options)

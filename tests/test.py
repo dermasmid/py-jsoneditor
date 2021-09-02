@@ -24,7 +24,7 @@ jsoneditor.editjson(requests.get('https://jsonplaceholder.typicode.com/comments'
 
 
 # Test editing
-jsoneditor.editjson({'hi': '#466'}, print, {'colorPicker': True})
+jsoneditor.editjson({'hi': '#466'}, print, {'colorPicker': True}, run_in_thread= True)
 
 
 # Test urls
