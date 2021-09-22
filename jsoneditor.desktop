@@ -1,0 +1,6 @@
+# ~/.local/share/applications
+[Desktop Entry]
+Exec=jsoneditor %f
+Name=jsoneditor
+Terminal=true
+Type=Application
