@@ -1,10 +1,15 @@
-from jsoneditor import __version__
-from setuptools import setup
 import pathlib
+import re
 
+from setuptools import setup
 
 
 HERE = pathlib.Path(__file__).parent
+
+
+with open(HERE / 'jsoneditor/__init__.py', encoding= 'utf-8') as f:
+    version = re.findall(r'__version__ = \'(.+)\'', f.read())[0]
+
 
 with open(HERE / 'README.md', encoding='utf-8') as f:
     readme = f.read()
@@ -14,7 +19,7 @@ with open(HERE / 'requirements.txt', encoding='utf-8') as f:
 
 setup(
     name = 'jsoneditor',
-    version = __version__,
+    version = version,
     packages = ['jsoneditor'],
     include_package_data = True,
     url = 'https://github.com/dermasmid/py-jsoneditor',
