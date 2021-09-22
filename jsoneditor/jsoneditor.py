@@ -231,7 +231,7 @@ def main() -> None:
     parser.add_argument('-e', help='Edit mode.', action='store_true')
     parser.add_argument('-p', help='Server port.')
     parser.add_argument('--out', help='File to output when in edit mode.')
-    parser.add_argument('-t', help='Title to display in browser window')
+    parser.add_argument('-t', help='Title to display in browser window.')
     parser.add_argument('--csv', help='Input is CSV.', action='store_true')
     args = parser.parse_args()
 
