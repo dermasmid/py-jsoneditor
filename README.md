@@ -66,9 +66,9 @@ You can pass the json in any of the following formats:
 | `data`    | `Any`     | ❌ |  The data in any of [these](#formats-you-can-pass-the-json-as) formats.       |
 | `callback`| `callable`| ✔️ |  If you provide this argument you will have a ✅ button which will trigger this callback.|
 | `options` | `dict`    | ✔️ | Options to pass the the jsoneditor object. See [here](https://github.com/josdejong/jsoneditor/blob/master/docs/api.md#configuration-options)|
-| `keep_running`| `bool` | ✔️ | Whether to keep the server running. Defaults to `False`                  |
-| `run_in_thread`| `bool` | ✔️ | Whether to run run the server in a separate thread. Defaults to `False` |
-| `is_csv`| `bool` | ✔️ | Whether the data is csv data.                                                  |
+| `keep_running`| `bool` | ✔️ | Whether to keep the server running. Defaults to `False`.                 |
+| `run_in_thread`| `bool` | ✔️ | Whether to run the server in a separate thread. Defaults to `False`.    |
+| `is_csv`| `bool` | ✔️ | Whether the data is csv data. Defaults to `False`.                             |
 | `title`| `str` | ✔️ | A title to display in the browser.                                               |
 | `port`| `int` | ✔️ | specify which port to use.                                                        |
 
