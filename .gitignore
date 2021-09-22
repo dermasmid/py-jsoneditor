@@ -6,3 +6,5 @@ dist/
 
 # the https://github.com/josdejong/jsoneditor repo
 .app-jsoneditor
+
+env/
