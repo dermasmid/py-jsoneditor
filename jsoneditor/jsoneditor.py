@@ -24,8 +24,10 @@ install_dir = os.path.dirname(os.path.realpath(__file__))
 
 class AltWsgiHandler(WSGIRequestHandler):
     def log_message(self, format, *args) -> None:
-        self.server.number_of_requests += 1
-        if self.path == '/close' or (not self.server.keep_running and self.server.number_of_requests == 7):
+        if not self.path == '/files/img/favicon.ico':
+            # cached per port.
+            self.server.number_of_requests += 1
+        if self.path == '/close' or (not self.server.keep_running and self.server.number_of_requests == 6):
             self.server._BaseServer__shutdown_request = True
 
 
@@ -39,7 +41,8 @@ class Server:
         keep_running: bool = False,
         run_in_thread: bool = False,
         is_csv: bool = False,
-        title: str = None
+        title: str = None,
+        port: int = None
         ) -> None:
         self.callback = callback
         self.options = options
@@ -47,12 +50,12 @@ class Server:
         self.run_in_thread = run_in_thread
         self.is_csv = is_csv
         self.title = title
-        self.get_random_port()
+        self.get_random_port(port)
         self.data = self.get_json(data)
 
 
-    def get_random_port(self):
-        self.port = random.randint(1023, 65353)
+    def get_random_port(self, port: int = None):
+        self.port = port or random.randint(1023, 65353)
 
 
     def send_response(self, status, content_type, respond):
@@ -197,10 +200,11 @@ def editjson(
     keep_running: bool = False,
     run_in_thread: bool = False,
     is_csv: bool = False,
-    title: str = None
+    title: str = None,
+    port: int = None
     ) -> None:
     keep_running = keep_running or bool(callback)
-    server = Server(data, callback, options, keep_running, run_in_thread, is_csv, title)
+    server = Server(data, callback, options, keep_running, run_in_thread, is_csv, title, port)
 
     if server.run_in_thread:
         thread = threading.Thread(target=server.start)
@@ -225,6 +229,7 @@ def main() -> None:
     parser.add_argument('-c', help='Get JSON input from clipboard.', action='store_true')
     parser.add_argument('-k', help='Keep alive.', action='store_true')
     parser.add_argument('-e', help='Edit mode.', action='store_true')
+    parser.add_argument('-p', help='Server port.')
     parser.add_argument('--out', help='File to output when in edit mode.')
     parser.add_argument('-t', help='Title to display in browser window')
     parser.add_argument('--csv', help='Input is CSV.', action='store_true')
@@ -239,6 +244,9 @@ def main() -> None:
 
     if args.k:
         options['keep_running'] = True
+
+    if args.p:
+        options['port'] = int(args.p)
 
     if args.t:
         options['title'] = args.t
