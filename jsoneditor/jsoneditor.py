@@ -1,22 +1,21 @@
-from io import TextIOWrapper
+import argparse
+import ast
+import csv
 import json
+import mimetypes
+import os
+import random
+import sys
 import threading
 import webbrowser
-import random
-import os
-import sys
-import requests
-import mimetypes
-import argparse
-import csv
-import ast
-import sys
-import pyperclip
-from typing import Union
 from collections.abc import Mapping
+from io import TextIOWrapper
+from typing import Union
 from urllib.parse import urlparse
-from wsgiref.simple_server import make_server, WSGIRequestHandler
+from wsgiref.simple_server import WSGIRequestHandler, make_server
 
+import pyperclip
+import requests
 
 # Get installation dir
 install_dir = os.path.dirname(os.path.realpath(__file__))
