@@ -23,10 +23,8 @@ install_dir = os.path.dirname(os.path.realpath(__file__))
 
 class AltWsgiHandler(WSGIRequestHandler):
     def log_message(self, format, *args) -> None:
-        if not self.path == '/files/img/favicon.ico':
-            # cached per port.
-            self.server.number_of_requests += 1
-        if self.path == '/close' or (not self.server.keep_running and self.server.number_of_requests == 6):
+        self.server.number_of_requests += 1
+        if self.path == '/close' or (not self.server.keep_running and self.server.number_of_requests == 8):
             self.server._BaseServer__shutdown_request = True
 
 
@@ -147,7 +145,8 @@ class Server:
                     'data': self.data,
                     'callback': bool(self.callback),
                     'options': self.options,
-                    'title': self.title or 'jsoneditor'
+                    'title': self.title or 'jsoneditor',
+                    'keep_running': self.keep_running
                 }
                 yield json.dumps(data).encode('utf-8')
             # Close endpoint

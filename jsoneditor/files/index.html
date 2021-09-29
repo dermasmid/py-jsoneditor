@@ -2,65 +2,13 @@
 <html lang="en">
 <head>
     <meta charset="utf-8">
-    <link rel="icon" type="image/png" href="files/img/favicon.ico"/>
+    <link rel="shortcut icon" href="data:image/x-icon;," type="image/x-icon">
     <link href="files/jsoneditor.min.css" rel="stylesheet" type="text/css">
     <link href="files/index.css" rel="stylesheet" type="text/css">
     <script src="files/jsoneditor.min.js"></script>
 </head>
 <body>
     <div id="jsoneditor" style="height: 98vh;"></div>
-    <script>
-        function init(data) {
-        const container = document.getElementById("jsoneditor");
-        const options = data.options;
-        const editor = new JSONEditor(container, options ? options : {colorPicker: false});
-        const initialJson = data.data;
-        const jsoneditorMenu = document.getElementsByClassName('jsoneditor-menu')[0]
-        editor.set(initialJson);
-        document.title = data.title
-        if (data.callback) {
-            const callbackButton = document.createElement('button')
-            callbackButton.className = 'send-back-json'
-            callbackButton.title = 'Trigger callback with the current data'
-            jsoneditorMenu.append(callbackButton)
-            callbackButton.onclick = () => {
-                var xhr = new XMLHttpRequest();
-                xhr.open("POST", window.location.origin + '/callback', true);
-                xhr.setRequestHeader('Content-Type', 'application/json');
-                xhr.send(JSON.stringify({
-                    data: editor.get()
-                }));
-            }
-
-            // we only show the close button when we have a callback
-            const closeButton = document.createElement('button')
-            closeButton.className = 'finnish-and-shuttdown'
-            closeButton.title = 'Finnish and shuttdown'
-            jsoneditorMenu.append(closeButton)
-            closeButton.onclick = () => {
-                let xhr = new XMLHttpRequest();
-                xhr.onreadystatechange = function() {
-                    if (this.readyState == 4 && this.status == 200) {
-                        window.close();
-                    }
-                }
-                xhr.open("GET", window.location.origin + '/close');
-                xhr.onerror = () => {
-                    window.close();
-                }
-                xhr.send(null);
-            }
-        }
-    }
-    var xhr = new XMLHttpRequest();
-    xhr.onreadystatechange = function() {
-        if (this.readyState == 4 && this.status == 200) {
-        data = JSON.parse(xhr.responseText);
-        init(data)
-    }
-    };
-    xhr.open("GET", window.location.origin + '/get_data', true);
-    xhr.send();
-    </script>
+    <script src="files/index.js"></script>
 </body>
 </html>
