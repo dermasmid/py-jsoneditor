@@ -161,7 +161,7 @@ class Server:
                 yield open(file_path, "rb").read()
             # 404
             else:
-                self.send_response('404 - Not Found', 'text/plain', respond)
+                self.send_response('404 Not Found', 'text/plain', respond)
                 yield b''
         # callback endpoint
         elif method == 'POST':
@@ -224,10 +224,10 @@ def main() -> None:
     from . import __version__
     parser = argparse.ArgumentParser(description=('View and edit your JSON data in the browser.'))
     parser.add_argument('--version', action='version', version= '%(prog)s {version}'.format(version= __version__))
-    parser.add_argument('data', help='The JSON data, can be valid JSON or a url that will return JSON or a file path.', nargs='?')
+    parser.add_argument('data', help='The data, can be the raw data or a url that will return the data or a file path.', nargs='?')
     parser.add_argument('-o', help='Add a button that will output the json back to the console.', action='store_true')
     parser.add_argument('-b', help='Keep running in backround.', action='store_true')
-    parser.add_argument('-c', help='Get JSON input from clipboard.', action='store_true')
+    parser.add_argument('-c', help='Get data input from clipboard.', action='store_true')
     parser.add_argument('-k', help='Keep alive.', action='store_true')
     parser.add_argument('-e', help='Edit mode.', action='store_true')
     parser.add_argument('-p', help='Server port.')
