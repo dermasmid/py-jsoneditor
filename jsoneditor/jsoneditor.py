@@ -222,7 +222,9 @@ def open_browser(port: int) -> None:
 
 # cli function
 def main() -> None:
+    from . import __version__
     parser = argparse.ArgumentParser(description=('View and edit your JSON data in the browser.'))
+    parser.add_argument('--version', action='version', version= '%(prog)s {version}'.format(version= __version__))
     parser.add_argument('data', help='The JSON data, can be valid JSON or a url that will return JSON or a file path.', nargs='?')
     parser.add_argument('-o', help='Add a button that will output the json back to the console.', action='store_true')
     parser.add_argument('-b', help='Keep running in backround.', action='store_true')
