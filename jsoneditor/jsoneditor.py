@@ -10,7 +10,7 @@ import threading
 import webbrowser
 from collections.abc import Mapping
 from io import TextIOWrapper
-from typing import Union
+from typing import Union, Callable, Any
 from urllib.parse import urlparse
 from wsgiref.simple_server import WSGIRequestHandler, make_server
 
@@ -32,8 +32,8 @@ class Server:
 
     def __init__(
         self,
-        data: Union[dict, str],
-        callback: callable = None,
+        data: Union[dict, str, list],
+        callback: Callable[[dict], Any] = None,
         options: dict = None,
         keep_running: bool = False,
         run_in_thread: bool = False,
@@ -192,8 +192,8 @@ class Server:
 
 # Entry point
 def editjson(
-    data: Union[dict, str],
-    callback: callable = None,
+    data: Union[dict, str, list],
+    callback: Callable[[dict], Any] = None,
     options: dict = None,
     keep_running: bool = False,
     run_in_thread: bool = False,
