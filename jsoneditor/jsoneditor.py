@@ -26,7 +26,7 @@ class AltWsgiHandler(WSGIRequestHandler):
         self.server.number_of_requests += 1
         if self.path == '/close' or (not self.server.keep_running and self.server.number_of_requests == 8):
             self.server._BaseServer__shutdown_request = True
-
+            self.server.server_close()
 
 class Server:
 
@@ -137,7 +137,9 @@ class Server:
         if method == 'GET':
             if path == '/':
                 self.send_response('200 OK', 'text/html', respond)
-                yield open(install_dir + '/files/index.html', "rb").read()
+                with open(install_dir + '/files/index.html', "rb") as f:
+                    content = f.read()
+                yield content
             # Data endpiont
             elif path == '/get_data':
                 self.send_response('200 OK', 'application/json', respond)
@@ -157,7 +159,9 @@ class Server:
             elif path.startswith('/files') and os.path.exists(file_path):
                 type = mimetypes.guess_type(file_path)[0]
                 self.send_response('200 OK', type, respond)
-                yield open(file_path, "rb").read()
+                with open(file_path, "rb") as f:
+                    content = f.read()
+                yield content
             # 404
             else:
                 self.send_response('404 Not Found', 'text/plain', respond)
