@@ -1,7 +1,7 @@
 function init(data) {
     const container = document.getElementById("jsoneditor");
     const options = data.options;
-    const editor = new JSONEditor(container, options ? options : {colorPicker: false});
+    const editor = new JSONEditor(container, options ? options : { colorPicker: false });
     const initialJson = data.data;
     const jsoneditorMenu = document.getElementsByClassName('jsoneditor-menu')[0]
     editor.set(initialJson);
@@ -46,7 +46,7 @@ function addCloseButton(jsoneditorMenu) {
     jsoneditorMenu.append(closeButton)
     closeButton.onclick = () => {
         let xhr = new XMLHttpRequest();
-        xhr.onreadystatechange = function() {
+        xhr.onreadystatechange = function () {
             if (this.readyState == 4 && this.status == 200) {
                 window.close();
             }
@@ -62,11 +62,11 @@ function addCloseButton(jsoneditorMenu) {
 
 function getData() {
     var xhr = new XMLHttpRequest();
-    xhr.onreadystatechange = function() {
+    xhr.onreadystatechange = function () {
         if (this.readyState == 4 && this.status == 200) {
-        data = JSON.parse(xhr.responseText);
-        init(data)
-    }
+            data = JSON.parse(xhr.responseText);
+            init(data)
+        }
     };
     xhr.open("GET", window.location.origin + '/get_data', true);
     xhr.send();
