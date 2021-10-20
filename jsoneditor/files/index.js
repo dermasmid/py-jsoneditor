@@ -7,7 +7,7 @@ function init(data) {
     editor.set(initialJson);
     document.title = data.title
     if (data.callback) {
-        addCallbackButton(jsoneditorMenu)
+        addCallbackButton(jsoneditorMenu, editor)
     }
     if (data.keep_running) {
         addCloseButton(jsoneditorMenu);
@@ -23,7 +23,7 @@ function setFavicon() {
 };
 
 
-function addCallbackButton(jsoneditorMenu) {
+function addCallbackButton(jsoneditorMenu, editor) {
     const callbackButton = document.createElement('button')
     callbackButton.className = 'send-back-json'
     callbackButton.title = 'Trigger callback with the current data'
