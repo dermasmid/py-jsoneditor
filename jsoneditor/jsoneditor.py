@@ -145,7 +145,7 @@ class Server:
                     "title": self.title or "jsoneditor",
                     "keep_running": self.keep_running,
                 }
-                yield json.dumps(data).encode("utf-8")
+                yield json.dumps(data, default= repr).encode("utf-8")
             # Close endpoint
             elif path == "/close":
                 self.send_response("200 OK", "text/plain", respond)
