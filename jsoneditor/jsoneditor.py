@@ -22,7 +22,7 @@ install_dir = os.path.dirname(os.path.realpath(__file__))
 
 
 class AltWsgiHandler(WSGIRequestHandler):
-    def log_message(self, format, *args) -> None:
+    def log_message(self, _format, *args) -> None:
         self.server.number_of_requests += 1
         if self.path == "/close" or (
             not self.server.keep_running and self.server.number_of_requests == 8
@@ -72,7 +72,7 @@ class Server:
                 if source.endswith(".csv"):
                     self.is_csv = True
                 self.title = self.title or os.path.basename(source)
-                retrieved_data = open(source, "r")
+                retrieved_data = open(source, "r", encoding="utf-8")
             else:
                 retrieved_data = source
             try:
@@ -145,15 +145,15 @@ class Server:
                     "title": self.title or "jsoneditor",
                     "keep_running": self.keep_running,
                 }
-                yield json.dumps(data, default= repr).encode("utf-8")
+                yield json.dumps(data, default=repr).encode("utf-8")
             # Close endpoint
             elif path == "/close":
                 self.send_response("200 OK", "text/plain", respond)
                 yield b""
             # Serve static files
             elif path.startswith("/files") and os.path.exists(file_path):
-                type = mimetypes.guess_type(file_path)[0]
-                self.send_response("200 OK", type, respond)
+                mimetype = mimetypes.guess_type(file_path)[0]
+                self.send_response("200 OK", mimetype, respond)
                 with open(file_path, "rb") as f:
                     content = f.read()
                 yield content
@@ -294,7 +294,7 @@ def main() -> None:
             elif os.path.exists(options["data"]):
                 file_path = options["data"]
             if file_path:
-                with open(file_path, "w") as f:
+                with open(file_path, "w", encoding="utf-8") as f:
                     if args.csv or options["data"].endswith(".csv"):
                         csv_fields = json_data[0].keys() if json_data else []
                         writer = csv.DictWriter(f, csv_fields)

@@ -1,7 +1,9 @@
+var editor
+
 function init(data) {
     const container = document.getElementById("jsoneditor");
     const options = data.options;
-    const editor = new JSONEditor(container, options ? options : { colorPicker: false });
+    editor = new JSONEditor(container, options);
     const initialJson = data.data;
     const jsoneditorMenu = document.getElementsByClassName('jsoneditor-menu')[0]
     editor.set(initialJson);
