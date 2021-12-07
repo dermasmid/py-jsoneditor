@@ -37,6 +37,7 @@ class Server:
         data: Union[dict, str, list],
         callback: Callable[[dict], Any] = None,
         options: dict = None,
+        additional_js: str = None,
         keep_running: bool = False,
         run_in_thread: bool = False,
         is_csv: bool = False,
@@ -45,6 +46,7 @@ class Server:
     ) -> None:
         self.callback = callback
         self.options = options
+        self.additional_js = additional_js
         self.keep_running = keep_running
         self.run_in_thread = run_in_thread
         self.is_csv = is_csv
@@ -142,6 +144,7 @@ class Server:
                     "data": self.data,
                     "callback": bool(self.callback),
                     "options": self.options,
+                    "additional_js": self.additional_js,
                     "title": self.title or "jsoneditor",
                     "keep_running": self.keep_running,
                 }
@@ -197,6 +200,7 @@ def editjson(
     data: Union[dict, str, list],
     callback: Callable[[dict], Any] = None,
     options: dict = None,
+    additional_js: str = None,
     keep_running: bool = False,
     run_in_thread: bool = False,
     is_csv: bool = False,
@@ -205,7 +209,7 @@ def editjson(
 ) -> None:
     keep_running = keep_running or bool(callback)
     server = Server(
-        data, callback, options, keep_running, run_in_thread, is_csv, title, port
+        data, callback, options, additional_js, keep_running, run_in_thread, is_csv, title, port
     )
 
     if server.run_in_thread:

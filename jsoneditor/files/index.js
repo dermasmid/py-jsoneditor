@@ -14,6 +14,9 @@ function init(data) {
     if (data.keep_running) {
         addCloseButton(jsoneditorMenu);
     }
+    if (data.additional_js) {
+        eval(data.additional_js)
+    }
 }
 
 

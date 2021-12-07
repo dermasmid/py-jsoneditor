@@ -4,7 +4,7 @@ Quickly View and Edit any JSON data.
 
 # Why?
 
-When working with JSON data, you offten need to get a structured view of the JSON in order to be able to work with it. There's an online tool [https://jsoneditoronline.org/](https://jsoneditoronline.org/) which i used for this, but copying/pasting all the time got frustrating pretty quickly, This is why i created this package which you can launch right from python or from the command line.
+When working with JSON data, You often need to get a structured view of the JSON in order to be able to work with it. There's an online tool [https://jsoneditoronline.org/](https://jsoneditoronline.org/) which I used for this, but copying/pasting all the time got frustrating pretty quickly, This is why I created this package which you can launch right from Python or from the command line.
 
 
 # Screenshot
@@ -66,6 +66,7 @@ You can pass the json in any of the following formats:
 | `data`    | `Any`     | ❌ |  The data in any of [these](#formats-you-can-pass-the-json-as) formats.       |
 | `callback`| `callable`| ✔️ |  If you provide this argument you will have a ✅ button which will trigger this callback.|
 | `options` | `dict`    | ✔️ | Options to pass the the jsoneditor object. See [here](https://github.com/josdejong/jsoneditor/blob/master/docs/api.md#configuration-options)|
+| `additional_js`| `str`| ✔️ |  You can pass some JavaScript to run on the client side. You can interact with the editor by accessing the `window.editor` variable.|
 | `keep_running`| `bool` | ✔️ | Whether to keep the server running. Defaults to `False`.                 |
 | `run_in_thread`| `bool` | ✔️ | Whether to run the server in a separate thread. Defaults to `False`.    |
 | `is_csv`| `bool` | ✔️ | Whether the data is csv data. Defaults to `False`.                             |
