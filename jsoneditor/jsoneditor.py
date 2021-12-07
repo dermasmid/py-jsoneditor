@@ -27,8 +27,7 @@ class AltWsgiHandler(WSGIRequestHandler):
         if self.path == "/close" or (
             not self.server.keep_running and self.server.number_of_requests == 8
         ):
-            self.server._BaseServer__shutdown_request = True
-            self.server.server_close()
+            self.server.stop()
 
 
 class Server:
@@ -53,6 +52,7 @@ class Server:
         self.title = title
         self.get_random_port(port)
         self.data = self.get_json(data)
+        self.server = None
 
     def get_random_port(self, port: int = None):
         self.port = port or random.randint(1023, 65353)
@@ -179,20 +179,26 @@ class Server:
         # We might get an error if the port is in use.
         while True:
             try:
-                server = make_server(
+                self.server = make_server(
                     "", self.port, self.wsgi_app, handler_class=AltWsgiHandler
                 )
                 break
             except OSError:
                 self.get_random_port()
 
-        server.number_of_requests = 0
-        server.keep_running = self.keep_running
+        self.server.number_of_requests = 0
+        self.server.keep_running = self.keep_running
+        self.server.stop = self.stop
 
         if not self.run_in_thread:
             open_browser(self.port)
 
-        server.serve_forever()
+        self.server.serve_forever()
+
+    def stop(self):
+        if self.server:
+            self.server._BaseServer__shutdown_request = True
+            self.server.server_close()
 
 
 # Entry point
@@ -206,10 +212,19 @@ def editjson(
     is_csv: bool = False,
     title: str = None,
     port: int = None,
-) -> None:
+) -> Server:
     keep_running = keep_running or bool(callback)
+
     server = Server(
-        data, callback, options, additional_js, keep_running, run_in_thread, is_csv, title, port
+        data,
+        callback,
+        options,
+        additional_js,
+        keep_running,
+        run_in_thread,
+        is_csv,
+        title,
+        port,
     )
 
     if server.run_in_thread:
@@ -218,6 +233,8 @@ def editjson(
         open_browser(server.port)
     else:
         server.start()
+
+    return server
 
 
 def open_browser(port: int) -> None:
