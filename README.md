@@ -80,7 +80,7 @@ You can pass the json in any of the following formats:
 | --------- | ----------------------------------------------------------------------|
 | `data`    | The data in any of [these](#formats-you-can-pass-the-json-as) formats.|
 | `-o`      | Add a button that will output the json back to the console.           |
-| `-b`      | Keep running in backround.                                            |
+| `-b`      | Keep running in background.                                           |
 | `-c`      | Get JSON input from clipboard.                                        |
 | `-k`      | Keep alive.                                                           |
 | `-e`      | Edit mode.                                                            |

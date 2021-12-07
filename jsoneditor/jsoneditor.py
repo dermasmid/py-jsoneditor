@@ -267,7 +267,7 @@ def main() -> None:
         help="Add a button that will output the json back to the console",
         action="store_true",
     )
-    parser.add_argument("-b", help="Keep running in backround", action="store_true")
+    parser.add_argument("-b", help="Keep running in background", action="store_true")
     parser.add_argument("-c", help="Get data input from clipboard", action="store_true")
     parser.add_argument("-k", help="Keep alive", action="store_true")
     parser.add_argument("-e", help="Edit mode", action="store_true")
