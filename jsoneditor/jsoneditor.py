@@ -40,6 +40,7 @@ class Server:
         keep_running: bool = False,
         run_in_thread: bool = False,
         is_csv: bool = False,
+        is_ndjson: bool = False,
         title: str = None,
         port: int = None,
     ) -> None:
@@ -49,6 +50,7 @@ class Server:
         self.keep_running = keep_running
         self.run_in_thread = run_in_thread
         self.is_csv = is_csv
+        self.is_ndjson = is_ndjson
         self.title = title
         self.get_random_port(port)
         self.data = self.get_json(data)
@@ -66,13 +68,11 @@ class Server:
         retrieved_data = None
         if type(source) is str:
             if self.is_url(source):
-                if source.endswith(".csv"):
-                    self.is_csv = True
+                self.detect_source_by_filename(source)
                 self.title = self.title or source.split("/")[-1].split("?")[0]
                 retrieved_data = requests.get(source).text
             elif self.is_file(source):
-                if source.endswith(".csv"):
-                    self.is_csv = True
+                self.detect_source_by_filename(source)
                 self.title = self.title or os.path.basename(source)
                 retrieved_data = open(source, "r", encoding="utf-8")
             else:
@@ -106,6 +106,12 @@ class Server:
     def is_file(source: str) -> bool:
         return os.path.exists(source)
 
+    def detect_source_by_filename(self, source: str):
+        if source.endswith(".csv"):
+            self.is_csv = True
+        elif any(source.endswith(ext) for ext in [".ndjson", ".jsonl"]):
+            self.is_ndjson = True
+
     def load_json(self, source):
         if self.is_csv:
             if isinstance(source, str):
@@ -114,6 +120,12 @@ class Server:
                 result = list(csv.DictReader(source.split("\n")))
             elif isinstance(source, TextIOWrapper):
                 result = list(csv.DictReader(source))
+        elif self.is_ndjson:
+            if isinstance(source, str):
+                lines = source.splitlines()
+            elif isinstance(source, TextIOWrapper):
+                lines = source.readlines()
+            result = list(json.loads(line) for line in lines)
         else:
             if isinstance(source, str):
                 try:
@@ -210,6 +222,7 @@ def editjson(
     keep_running: bool = False,
     run_in_thread: bool = False,
     is_csv: bool = False,
+    is_ndjson: bool = False,
     title: str = None,
     port: int = None,
 ) -> Server:
@@ -223,6 +236,7 @@ def editjson(
         keep_running,
         run_in_thread,
         is_csv,
+        is_ndjson,
         title,
         port,
     )
@@ -275,6 +289,9 @@ def main() -> None:
     parser.add_argument("--out", help="File to output when in edit mode")
     parser.add_argument("-t", help="Title to display in browser window")
     parser.add_argument("--csv", help="Input is CSV", action="store_true")
+    parser.add_argument(
+        "--ndjson", help="Input is Newline Delimited JSON", action="store_true"
+    )
     args = parser.parse_args()
 
     options = {}
@@ -295,6 +312,9 @@ def main() -> None:
 
     if args.csv:
         options["is_csv"] = True
+
+    if args.ndjson:
+        options["ndjson"] = True
 
     if not os.isatty(0):
         options["data"] = "".join(x for x in sys.stdin)
