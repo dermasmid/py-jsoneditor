@@ -314,7 +314,7 @@ def main() -> None:
         options["is_csv"] = True
 
     if args.ndjson:
-        options["ndjson"] = True
+        options["is_ndjson"] = True
 
     if not os.isatty(0):
         options["data"] = "".join(x for x in sys.stdin)
