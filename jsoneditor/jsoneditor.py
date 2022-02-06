@@ -43,6 +43,7 @@ class Server:
         is_ndjson: bool = False,
         title: str = None,
         port: int = None,
+        no_browser: bool = False,
     ) -> None:
         self.callback = callback
         self.options = options
@@ -52,6 +53,7 @@ class Server:
         self.is_csv = is_csv
         self.is_ndjson = is_ndjson
         self.title = title
+        self.no_browser = no_browser
         self.get_random_port(port)
         self.data = self.get_json(data)
         self.server = None
@@ -203,7 +205,7 @@ class Server:
         self.server.stop = self.stop
 
         if not self.run_in_thread:
-            open_browser(self.port)
+            open_browser(self.port, self.no_browser)
 
         self.server.serve_forever()
 
@@ -225,6 +227,7 @@ def editjson(
     is_ndjson: bool = False,
     title: str = None,
     port: int = None,
+    no_browser: bool = False,
 ) -> Server:
     keep_running = keep_running or bool(callback)
 
@@ -239,24 +242,28 @@ def editjson(
         is_ndjson,
         title,
         port,
+        no_browser,
     )
 
     if server.run_in_thread:
         thread = threading.Thread(target=server.start)
         thread.start()
-        open_browser(server.port)
+        open_browser(server.port, no_browser)
     else:
         server.start()
 
     return server
 
 
-def open_browser(port: int) -> None:
-    browser_opened = webbrowser.open(f"http://localhost:{port}/")
-    if not browser_opened:
-        print(
-            f"Couldn't launch browser, Please open this link to see the JSON: http://localhost:{port}/"
-        )
+def open_browser(port: int, no_browser: bool) -> None:
+    if no_browser:
+        print(f"Please open this link to see the JSON: http://localhost:{port}/")
+    else:
+        browser_opened = webbrowser.open(f"http://localhost:{port}/")
+        if not browser_opened:
+            print(
+                f"Couldn't launch browser, Please open this link to see the JSON: http://localhost:{port}/"
+            )
 
 
 # cli function
@@ -285,6 +292,7 @@ def main() -> None:
     parser.add_argument("-c", help="Get data input from clipboard", action="store_true")
     parser.add_argument("-k", help="Keep alive", action="store_true")
     parser.add_argument("-e", help="Edit mode", action="store_true")
+    parser.add_argument("-n", help="Don't launch browser", action="store_true")
     parser.add_argument("-p", help="Server port")
     parser.add_argument("--out", help="File to output when in edit mode")
     parser.add_argument("-t", help="Title to display in browser window")
@@ -309,6 +317,9 @@ def main() -> None:
 
     if args.t:
         options["title"] = args.t
+
+    if args.n:
+        options["no_browser"] = True
 
     if args.csv:
         options["is_csv"] = True
