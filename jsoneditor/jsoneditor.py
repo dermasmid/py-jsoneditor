@@ -18,14 +18,25 @@ import pyperclip
 import requests
 
 # Get installation dir
-install_dir = os.path.dirname(os.path.realpath(__file__))
+INSTALL_DIR = os.path.dirname(os.path.realpath(__file__))
+RESOURCES = [
+    "/",
+    "/files/jsoneditor.min.css",
+    "/files/index.css",
+    "/files/jsoneditor.min.js",
+    "/files/index.js",
+    "/get_data",
+    "/files/img/jsoneditor-icons.svg",
+    "/files/img/favicon.ico",
+]
 
 
 class AltWsgiHandler(WSGIRequestHandler):
     def log_message(self, _format, *args) -> None:
-        self.server.number_of_requests += 1
+        if self.path in self.server.resources:
+            self.server.resources.remove(self.path)
         if self.path == "/close" or (
-            not self.server.keep_running and self.server.number_of_requests == 8
+            not self.server.keep_running and not self.server.resources
         ):
             self.server.stop()
 
@@ -61,8 +72,12 @@ class Server:
     def get_random_port(self, port: int = None):
         self.port = port or random.randint(1023, 65353)
 
-    def send_response(self, status, content_type, respond):
+    def send_response(
+        self, status: str, content_type: str, respond: Callable, cache: bool = False
+    ):
         headers = [("Content-type", content_type)]
+        if cache:
+            headers.append(("Cache-Control", "max-age=259200"))
         respond(status, headers)
 
     def get_json(self, source: Union[dict, str, list]) -> dict:
@@ -143,12 +158,12 @@ class Server:
     def wsgi_app(self, environ, respond):
         path = environ["PATH_INFO"]
         method = environ["REQUEST_METHOD"]
-        file_path = install_dir + path
+        file_path = INSTALL_DIR + path
         # index.html
         if method == "GET":
             if path == "/":
                 self.send_response("200 OK", "text/html", respond)
-                with open(install_dir + "/files/index.html", "rb") as f:
+                with open(INSTALL_DIR + "/files/index.html", "rb") as f:
                     content = f.read()
                 yield content
             # Data endpiont
@@ -170,7 +185,7 @@ class Server:
             # Serve static files
             elif path.startswith("/files") and os.path.exists(file_path):
                 mimetype = mimetypes.guess_type(file_path)[0]
-                self.send_response("200 OK", mimetype, respond)
+                self.send_response("200 OK", mimetype, respond, True)
                 with open(file_path, "rb") as f:
                     content = f.read()
                 yield content
@@ -200,7 +215,8 @@ class Server:
             except OSError:
                 self.get_random_port()
 
-        self.server.number_of_requests = 0
+        self.server.resources = RESOURCES.copy()
+
         self.server.keep_running = self.keep_running
         self.server.stop = self.stop
 

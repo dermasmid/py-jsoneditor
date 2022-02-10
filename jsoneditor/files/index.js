@@ -17,15 +17,18 @@ function init(data) {
     if (data.additional_js) {
         eval(data.additional_js)
     }
+    if (!data.keep_running) {
+        setTimeout(() => makeSureServerIsClosed(), 1000)
+    }
 }
 
 
-function setFavicon() {
-    const favicon = document.createElement('link');
-    favicon.rel = 'icon';
-    favicon.href = 'files/img/favicon.ico?random=' + (Math.random() + 1).toString(36).substring(7);
-    document.getElementsByTagName('head')[0].appendChild(favicon);
-};
+function makeSureServerIsClosed() {
+    let xhr = new XMLHttpRequest();
+    xhr.open("GET", window.location.origin + '/close');
+    xhr.onerror = () => {}
+    xhr.send(null);
+}
 
 
 function addCallbackButton(jsoneditorMenu, editor) {
@@ -77,6 +80,4 @@ function getData() {
     xhr.send();
 }
 
-
-setFavicon();
 getData();
