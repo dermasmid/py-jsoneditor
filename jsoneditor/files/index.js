@@ -49,8 +49,8 @@ function addCallbackButton(jsoneditorMenu, editor) {
 
 function addCloseButton(jsoneditorMenu) {
     const closeButton = document.createElement('button')
-    closeButton.className = 'finnish-and-shuttdown'
-    closeButton.title = 'Finnish and shuttdown'
+    closeButton.className = 'finish-and-shutdown'
+    closeButton.title = 'Finish and Shutdown'
     jsoneditorMenu.append(closeButton)
     closeButton.onclick = () => {
         let xhr = new XMLHttpRequest();
