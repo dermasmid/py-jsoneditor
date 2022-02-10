@@ -5,12 +5,13 @@ import json
 import mimetypes
 import os
 import random
+import subprocess
 import sys
 import threading
 import webbrowser
 from collections.abc import Mapping
 from io import TextIOWrapper
-from typing import Union, Callable, Any
+from typing import Any, Callable, Union
 from urllib.parse import urlparse
 from wsgiref.simple_server import WSGIRequestHandler, make_server
 
@@ -52,6 +53,7 @@ class Server:
         run_in_thread: bool = False,
         is_csv: bool = False,
         is_ndjson: bool = False,
+        is_js_object: bool = False,
         title: str = None,
         port: int = None,
         no_browser: bool = False,
@@ -63,6 +65,7 @@ class Server:
         self.run_in_thread = run_in_thread
         self.is_csv = is_csv
         self.is_ndjson = is_ndjson
+        self.is_js_object = is_js_object
         self.title = title
         self.no_browser = no_browser
         self.get_random_port(port)
@@ -143,6 +146,20 @@ class Server:
             elif isinstance(source, TextIOWrapper):
                 lines = source.readlines()
             result = list(json.loads(line) for line in lines)
+        elif self.is_js_object:
+            try:
+                result = json.loads(
+                    subprocess.run(
+                        ["node", "-e", f"console.log(JSON.stringify({source}))"],
+                        capture_output=True,
+                        check=True,
+                    ).stdout.decode()
+                )
+            except FileNotFoundError:
+                print(
+                    "You need to have Nodejs installed to be able to use JavaScript Objects."
+                )
+                sys.exit(1)
         else:
             if isinstance(source, str):
                 try:
@@ -241,6 +258,7 @@ def editjson(
     run_in_thread: bool = False,
     is_csv: bool = False,
     is_ndjson: bool = False,
+    is_js_object: bool = False,
     title: str = None,
     port: int = None,
     no_browser: bool = False,
@@ -256,6 +274,7 @@ def editjson(
         run_in_thread,
         is_csv,
         is_ndjson,
+        is_js_object,
         title,
         port,
         no_browser,
@@ -301,7 +320,7 @@ def main() -> None:
     )
     parser.add_argument(
         "-o",
-        help="Add a button that will output the json back to the console",
+        help="Add a button that will output the JSON back to the console",
         action="store_true",
     )
     parser.add_argument("-b", help="Keep running in background", action="store_true")
@@ -313,6 +332,9 @@ def main() -> None:
     parser.add_argument("--out", help="File to output when in edit mode")
     parser.add_argument("-t", help="Title to display in browser window")
     parser.add_argument("--csv", help="Input is CSV", action="store_true")
+    parser.add_argument(
+        "--js", help="Input is a JavaScript Object", action="store_true"
+    )
     parser.add_argument(
         "--ndjson", help="Input is Newline Delimited JSON", action="store_true"
     )
@@ -339,6 +361,9 @@ def main() -> None:
 
     if args.csv:
         options["is_csv"] = True
+
+    if args.js:
+        options["is_js_object"] = True
 
     if args.ndjson:
         options["is_ndjson"] = True

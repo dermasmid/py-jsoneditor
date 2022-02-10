@@ -70,6 +70,8 @@ You can pass the json in any of the following formats:
 | `keep_running`| `bool` | ✔️ | Whether to keep the server running. Defaults to `False`.                 |
 | `run_in_thread`| `bool` | ✔️ | Whether to run the server in a separate thread. Defaults to `False`.    |
 | `is_csv`| `bool` | ✔️ | Whether the data is csv data. Defaults to `False`.                             |
+| `is_ndjson`| `bool` | ✔️ | Whether the data is Newline Delimited JSON  . Defaults to `False`.          |
+| `is_js_object`| `bool` | ✔️ | Whether the data is a JavaScript Object. Defaults to `False`.            |
 | `title`| `str` | ✔️ | A title to display in the browser.                                               |
 | `port`| `int` | ✔️ | specify which port to use.                                                        |
 
@@ -78,16 +80,19 @@ You can pass the json in any of the following formats:
 
 | parameter | description                                                           |
 | --------- | ----------------------------------------------------------------------|
-| `data`    | The data in any of [these](#formats-you-can-pass-the-json-as) formats.|
-| `-o`      | Add a button that will output the json back to the console.           |
-| `-b`      | Keep running in background.                                           |
-| `-c`      | Get JSON input from clipboard.                                        |
-| `-k`      | Keep alive.                                                           |
-| `-e`      | Edit mode.                                                            |
-| `-p`      | Server port.                                                          |
-| `--out`   | File to output when in edit mode.                                     |
-| `-t`      | Title to display in browser window.                                   |
-| `--csv`   | Input is CSV.                                                         |
+| `data`    | The data in any of [these](#formats-you-can-pass-the-json-as) formats |
+| `-o`      | Add a button that will output the json back to the console            |
+| `-b`      | Keep running in background                                            |
+| `-c`      | Get JSON input from clipboard                                         |
+| `-k`      | Keep alive                                                            |
+| `-e`      | Edit mode                                                             |
+| `-n`      | Don't launch browser                                                  |
+| `-p`      | Server port                                                           |
+| `--out`   | File to output when in edit mode                                      |
+| `-t`      | Title to display in browser window                                    |
+| `--csv`   | Input is CSV                                                          |
+| `--js`    | Input is a JavaScript Object                                          |
+| `--ndjson`| Input is Newline Delimited JSON                                       |
 
 
 ## Build
