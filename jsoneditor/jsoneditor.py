@@ -148,13 +148,9 @@ class Server:
             result = list(json.loads(line) for line in lines)
         elif self.is_js_object:
             try:
-                result = json.loads(
-                    subprocess.run(
-                        ["node", "-e", f"console.log(JSON.stringify({source}))"],
-                        capture_output=True,
-                        check=True,
-                    ).stdout.decode()
-                )
+                node = subprocess.Popen(['node'], stdout=subprocess.PIPE, stdin=subprocess.PIPE)
+                stdout, _ = node.communicate(f"console.log(JSON.stringify({source}))".encode())
+                result = json.loads(stdout.decode())
             except FileNotFoundError:
                 print(
                     "You need to have Nodejs installed to be able to use JavaScript Objects."
