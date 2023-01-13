@@ -213,6 +213,10 @@ class Server:
                 callback_data = json.loads(
                     environ["wsgi.input"].read(request_body_size).decode("utf-8")
                 )["data"]
+                # fix for edit mode with keep alive setting
+                # apply the recieved data to instance data
+                # without this a refresh doesn't reflect saved changes
+                self.data = callback_data
                 self.callback(callback_data)
                 self.send_response("200 OK", "text/plain", respond)
                 yield b""
