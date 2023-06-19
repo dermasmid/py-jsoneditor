@@ -3,6 +3,7 @@ import ast
 import csv
 import json
 import mimetypes
+import yaml
 import os
 import random
 import subprocess
@@ -52,6 +53,7 @@ class Server:
         keep_running: bool = False,
         run_in_thread: bool = False,
         is_csv: bool = False,
+        is_yaml: bool = False,
         is_ndjson: bool = False,
         is_js_object: bool = False,
         title: str = None,
@@ -64,6 +66,7 @@ class Server:
         self.keep_running = keep_running
         self.run_in_thread = run_in_thread
         self.is_csv = is_csv
+        self.is_yaml = is_yaml
         self.is_ndjson = is_ndjson
         self.is_js_object = is_js_object
         self.title = title
@@ -129,6 +132,8 @@ class Server:
     def detect_source_by_filename(self, source: str):
         if source.endswith(".csv"):
             self.is_csv = True
+        elif source.endswith(".yaml"):
+            self.is_yaml = True
         elif any(source.endswith(ext) for ext in [".ndjson", ".jsonl"]):
             self.is_ndjson = True
 
@@ -140,6 +145,10 @@ class Server:
                 result = list(csv.DictReader(source.split("\n")))
             elif isinstance(source, TextIOWrapper):
                 result = list(csv.DictReader(source))
+        elif self.is_yaml:
+            result = list(filter(bool, yaml.load_all(source, Loader=yaml.UnsafeLoader)))
+            if len(result) == 1:
+                result = result[0]
         elif self.is_ndjson:
             if isinstance(source, str):
                 lines = source.splitlines()
@@ -257,6 +266,7 @@ def editjson(
     keep_running: bool = False,
     run_in_thread: bool = False,
     is_csv: bool = False,
+    is_yaml: bool = False,
     is_ndjson: bool = False,
     is_js_object: bool = False,
     title: str = None,
@@ -273,6 +283,7 @@ def editjson(
         keep_running,
         run_in_thread,
         is_csv,
+        is_yaml,
         is_ndjson,
         is_js_object,
         title,
@@ -332,6 +343,7 @@ def main() -> None:
     parser.add_argument("--out", help="File to output when in edit mode")
     parser.add_argument("-t", help="Title to display in browser window")
     parser.add_argument("--csv", help="Input is CSV", action="store_true")
+    parser.add_argument("--yaml", help="Input is YAML", action="store_true")
     parser.add_argument(
         "--js", help="Input is a JavaScript Object", action="store_true"
     )
@@ -362,6 +374,9 @@ def main() -> None:
     if args.csv:
         options["is_csv"] = True
 
+    if args.yaml:
+        options["is_yaml"] = True
+
     if args.js:
         options["is_js_object"] = True
 
@@ -376,7 +391,7 @@ def main() -> None:
         elif args.c:
             options["data"] = pyperclip.paste()
         else:
-            raise ValueError("No data passed")
+            raise ValueError("No data passed.")
 
     if args.e:
 

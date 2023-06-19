@@ -70,6 +70,7 @@ You can pass the json in any of the following formats:
 | `keep_running`| `bool` | ✔️ | Whether to keep the server running. Defaults to `False`.                 |
 | `run_in_thread`| `bool` | ✔️ | Whether to run the server in a separate thread. Defaults to `False`.    |
 | `is_csv`| `bool` | ✔️ | Whether the data is csv data. Defaults to `False`.                             |
+| `is_yaml`| `bool` | ✔️ | Whether the data is yaml data. Defaults to `False`.                           |
 | `is_ndjson`| `bool` | ✔️ | Whether the data is Newline Delimited JSON  . Defaults to `False`.          |
 | `is_js_object`| `bool` | ✔️ | Whether the data is a JavaScript Object. Defaults to `False`.            |
 | `title`| `str` | ✔️ | A title to display in the browser.                                               |
@@ -91,6 +92,7 @@ You can pass the json in any of the following formats:
 | `--out`   | File to output when in edit mode                                      |
 | `-t`      | Title to display in browser window                                    |
 | `--csv`   | Input is CSV                                                          |
+| `--yaml`  | Input is YAML                                                         |
 | `--js`    | Input is a JavaScript Object                                          |
 | `--ndjson`| Input is Newline Delimited JSON                                       |
 
